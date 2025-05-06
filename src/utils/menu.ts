@@ -1,5 +1,5 @@
 import { GM_registerMenuCommand } from '$'
-import { DEFAULT_HISTORY_LIMIT, HISTORY_LIMIT, clearHistory, setHistoryLimit } from '@/hooks/useHistory'
+import { DEFAULT_HISTORY_LIMIT, HISTORY_LIMIT, clearHistory, setHistoryLimit } from '@/utils/history'
 
 type MenuCommand = Parameters<typeof GM_registerMenuCommand>
 

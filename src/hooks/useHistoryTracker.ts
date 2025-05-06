@@ -1,6 +1,6 @@
+import { type ZhihuContent, saveHistory } from '@/utils/history'
 import { logger } from '@/utils/logger'
 import { useEffect } from 'react'
-import { type ZhihuContent, saveHistory } from './useHistory'
 
 export const useHistoryTracker = () => {
     useEffect(() => {

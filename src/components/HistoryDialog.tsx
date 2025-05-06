@@ -1,5 +1,5 @@
-import { type ZhihuContent, getHistory } from '@/hooks/useHistory'
 import styles from '@/styles/History.module.css'
+import { type ZhihuContent, getHistory } from '@/utils/history'
 import { type FC, useEffect, useRef } from 'react'
 
 interface HistoryDialogProps {
