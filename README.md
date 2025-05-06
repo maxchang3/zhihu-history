@@ -1,4 +1,8 @@
 # 知乎历史记录
+![Greasy Fork 总下载量](https://img.shields.io/greasyfork/dt/459852?style=flat-square&color=444)
+![](https://img.shields.io/badge/安装方式:-777)
+[![从 Greasy Fork 安装](https://img.shields.io/badge/Greasy_Fork-7D160D)](https://greasyfork.org/scripts/459852) [![从 Github Release 安装](https://img.shields.io/badge/Github_Release-3D7D3F)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history.user.js)
+
 
 刷知乎网页版的时候，最糟心的事情可能就是：当你正在看一个回答时候，因为各种意外刷新了，接着，你就再也找不到这个回答了。🤮
 
