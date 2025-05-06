@@ -22,12 +22,13 @@ export default defineConfig({
                 author: 'Max Chang',
                 icon: 'https://static.zhihu.com/heifetz/favicon.ico',
                 namespace: 'https://maxchang.me',
-                match: ['https://www.zhihu.com/', 'https://www.zhihu.com/search*'],
+                match: ['https://www.zhihu.com/'],
                 license: 'MIT',
                 grant: ['unsafeWindow'],
             },
             build: {
                 externalGlobals: {
+                    // react and react-dom are already mounted on the page
                     react: 'unsafeWindow.React',
                     'react-dom': 'unsafeWindow.ReactDOM',
                 },
