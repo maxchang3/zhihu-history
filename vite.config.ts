@@ -23,6 +23,7 @@ export default defineConfig({
                 icon: 'https://static.zhihu.com/heifetz/favicon.ico',
                 namespace: 'https://maxchang.me',
                 match: ['https://www.zhihu.com/', 'https://www.zhihu.com/search*'],
+                license: 'MIT',
                 grant: ['unsafeWindow'],
             },
             build: {
