@@ -1,0 +1,173 @@
+:root {
+    --primary-color: rgb(5, 109, 232);
+    --primary-light: rgba(5, 109, 232, 0.5);
+    --primary-bg: rgba(33, 150, 243, 0.2);
+    --text-color: #333;
+    --text-secondary: #666;
+    --shadow-color: hsla(0, 0%, 7%, 0.1);
+    --backdrop-color: hsla(0, 0%, 7%, 0.65);
+    --border-radius-sm: 2px;
+    --border-radius: 4px;
+    --spacing-sm: 4px;
+    --spacing-md: 8px;
+    --spacing-lg: 16px;
+    --spacing-xl: 25px;
+    --font-size-sm: 13px;
+    --font-size-md: 14px;
+}
+
+.historyCard {
+    background: #fff;
+    border-radius: var(--border-radius-sm);
+    box-shadow: 0 1px 3px var(--shadow-color);
+    margin-bottom: 10px;
+    padding: 5px 0;
+}
+
+.historyButton {
+    margin: 0 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid var(--primary-light);
+    background: transparent;
+    color: var(--primary-color);
+    border-radius: var(--border-radius);
+    height: 40px;
+    font-size: var(--font-size-md);
+    cursor: pointer;
+    width: calc(100% - 36px);
+}
+
+
+.dialog {
+    padding: 0;
+    border: 0;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    background-color: white;
+    max-width: 800px;
+    width: 80%;
+}
+
+.dialog::backdrop {
+    background-color: var(--backdrop-color);
+}
+
+.dialogContent {
+    padding: var(--spacing-lg) var(--spacing-xl);
+    outline: none;
+}
+
+.dialogHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+    border-bottom: 1px solid #eee;
+    padding-bottom: var(--spacing-md);
+}
+
+.dialogTitle {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-color);
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-secondary);
+    padding: var(--spacing-sm);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+    background-color: #f0f0f0;
+}
+
+.dialogBody {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.historyList {
+    list-style: none;
+    margin: 0;
+    display: flex;
+    /* 新添加的项放在顶部 */
+    flex-direction: column-reverse;
+    padding: 0 1.5em;
+}
+
+.historyItem {
+    padding: var(--spacing-md) 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-md);
+}
+
+.historyItem:last-child {
+    border-bottom: none;
+}
+
+.link {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    display: inline-block;
+}
+
+.link:hover {
+    color: var(--primary-color);
+}
+
+.authorInfo {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.answer::before {
+    content: '问题';
+    color: #2196f3;
+    background-color: var(--primary-bg);
+    font-weight: bold;
+    font-size: var(--font-size-sm);
+    padding: 1px var(--spacing-sm) 0;
+    border-radius: var(--border-radius-sm);
+    margin-right: var(--spacing-sm);
+    display: inline-block;
+}
+
+.article::before {
+    content: '文章';
+    color: #004b87;
+    background-color: var(--primary-bg);
+    font-weight: bold;
+    font-size: var(--font-size-sm);
+    padding: 1px var(--spacing-sm) 0;
+    border-radius: var(--border-radius-sm);
+    margin-right: var(--spacing-sm);
+    display: inline-block;
+}
+
+.emptyState {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+    font-style: italic;
+}
