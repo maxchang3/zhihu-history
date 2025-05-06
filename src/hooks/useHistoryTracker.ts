@@ -5,7 +5,7 @@ import { type ZhihuContent, saveHistory } from './useHistory'
 export const useHistoryTracker = () => {
     useEffect(() => {
         const bindEvent = (el: HTMLElement) => {
-            el.addEventListener('click', onClick, { once: true })
+            el.addEventListener('click', onClick)
         }
 
         const onClick = (e: Event) => {
