@@ -1,8 +1,8 @@
 import { HistoryCard } from '@/components/HistoryCard'
-import { useHistoryTracker } from '@/hooks/useHistoryTracker'
+import { trackHistory } from '@/utils/history'
 
 const App = () => {
-    useHistoryTracker()
+    trackHistory()
 
     return (
         <>
