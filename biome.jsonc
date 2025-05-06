@@ -1,0 +1,9 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "extends": ["@maxchang/biome-config"],
+  "files": {
+    // temporarily ignore `tsconfig.*.json` files until biome can properly handle them
+    // https://github.com/biomejs/biome/issues/933#issuecomment-2761862169
+    "ignore": ["tsconfig.*.json"]
+  }
+}
