@@ -110,6 +110,7 @@
   border-bottom: 1px solid #f0f0f0;
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
   gap: var(--spacing-md);
 }
 
@@ -125,7 +126,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  flex: 1;
   display: inline-block;
 }
 
