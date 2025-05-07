@@ -90,48 +90,39 @@ export const clearHistory = () => {
 }
 
 /**
+ * 从 DOM 元素中提取历史记录信息并保存
+ */
+const saveHistoryFromElement = (item: HTMLElement) => {
+    const zop = item.dataset.zop
+    if (!zop) {
+        logger.error('无法读取回答或文章信息', item.dataset)
+        return
+    }
+    try {
+        const data: ZhihuContent = JSON.parse(zop)
+        const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
+        if (link) data.url = link.href
+        saveHistory(data)
+    } catch (err) {
+        logger.error('解析历史记录失败:', err)
+    }
+}
+
+/**
  * 监听点击事件，保存浏览历史
  */
 export const trackHistory = () => {
-    const bindEvent = (el: HTMLElement) => {
-        el.addEventListener('click', onClick)
-    }
-
-    const onClick = (e: Event) => {
-        const target = e.target as HTMLElement
-        const item = target.closest('.ContentItem') as HTMLElement
-        if (!item) return
-
-        const zop = item.dataset.zop
-        if (!zop) {
-            logger.error('无法读取回答或文章信息')
-            return
-        }
-
-        try {
-            const data: ZhihuContent = JSON.parse(zop)
-            const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
-            if (link) data.url = link.href
-            saveHistory(data)
-        } catch (err) {
-            logger.error('解析历史记录失败:', err)
-        }
-    }
-
-    document.querySelectorAll<HTMLElement>('.ContentItem').forEach(bindEvent)
-
     const container = document.querySelector('.Topstory-recommend')
-    if (!container) return
 
-    const observer = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-            m.addedNodes.forEach((node) => {
-                if (!(node instanceof HTMLElement)) return
-                const item = node.querySelector?.('.ContentItem')
-                if (item) bindEvent(item as HTMLElement)
-            })
-        }
+    if (!container) {
+        logger.error('未找到首页推荐容器')
+        return
+    }
+
+    container.addEventListener('click', (e) => {
+        const target = e.target
+        if (!(target instanceof HTMLElement)) return
+        const item = target.closest<HTMLElement>('.ContentItem')
+        if (item) saveHistoryFromElement(item)
     })
-
-    observer.observe(container, { childList: true, subtree: true })
 }
