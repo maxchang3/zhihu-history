@@ -1,6 +1,18 @@
 # Changelog
 
 
+## 1.0.2
+
+## Features
+
+- 添加打开历史记录面板快捷键（<kbd>H</kbd>）
+- 为弹出层和背景添加过渡效果
+  
+## Bug Fixes
+
+- 更新 URL 匹配模式
+- 修改关闭按钮的 aria-label 以避免与 [知乎增强](https://greasyfork.org/scripts/419081) 冲突
+
 ## 1.0.1
 
 ### Bug Fixes
