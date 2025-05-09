@@ -7,7 +7,6 @@ export interface ZhihuContent {
     title: string
     type: 'answer' | 'article'
     url?: string
-    timestamp?: number
 }
 
 const STORAGE_KEY = 'ZH_HISTORY'
