@@ -5,9 +5,6 @@ import { HistoryDialog } from './HistoryDialog'
 export const HistoryCard: FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    const handleOpenDialog = () => setIsDialogOpen(true)
-    const handleCloseDialog = () => setIsDialogOpen(false)
-
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             const target = event.target as HTMLElement
@@ -27,11 +24,17 @@ export const HistoryCard: FC = () => {
     }, [])
 
     return (
-        <div className={styles.historyCard}>
-            <button className={styles.historyButton} onClick={handleOpenDialog} aria-label="查看历史记录" type="button">
-                历史记录
+        <div className={styles.historyCard} role="complementary" aria-label="历史记录">
+            <button
+                className={styles.historyButton}
+                onClick={() => setIsDialogOpen(true)}
+                aria-label="打开历史记录"
+                aria-haspopup="dialog"
+                type="button"
+            >
+                <span>历史记录</span>
             </button>
-            <HistoryDialog isOpen={isDialogOpen} onClose={handleCloseDialog} />
+            <HistoryDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
         </div>
     )
 }
