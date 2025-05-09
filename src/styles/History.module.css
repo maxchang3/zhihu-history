@@ -163,9 +163,9 @@
   flex-shrink: 0;
 }
 
-.answer::before {
-  content: "问题";
-  color: #2196f3;
+.answer::before,
+.article::before,
+.pin::before {
   background-color: var(--primary-bg);
   font-weight: bold;
   font-size: var(--font-size-sm);
@@ -175,16 +175,19 @@
   display: inline-block;
 }
 
+.answer::before {
+  content: "问题";
+  color: #2196f3;
+}
+
 .article::before {
   content: "文章";
   color: #004b87;
-  background-color: var(--primary-bg);
-  font-weight: bold;
-  font-size: var(--font-size-sm);
-  padding: 1px var(--spacing-sm) 0;
-  border-radius: var(--border-radius-sm);
-  margin-right: var(--spacing-sm);
-  display: inline-block;
+}
+
+.pin::before {
+  content: "想法";
+  color: #60a912;
 }
 
 .emptyState {

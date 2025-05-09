@@ -22,7 +22,7 @@ export default defineConfig({
                 author: 'Max Chang',
                 icon: 'https://static.zhihu.com/heifetz/favicon.ico',
                 namespace: 'https://maxchang.me',
-                match: ['https://www.zhihu.com/'],
+                match: ['https://www.zhihu.com/', 'https://www.zhihu.com/follow*'],
                 license: 'MIT',
                 grant: ['unsafeWindow'],
             },

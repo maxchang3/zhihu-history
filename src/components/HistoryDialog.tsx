@@ -12,7 +12,7 @@ interface HistoryItemProps {
 }
 
 const HistoryItem: FC<HistoryItemProps> = ({ item }) => {
-    const itemTypeClass = item.type === 'answer' ? styles.answer : styles.article
+    const itemTypeClass = styles[item.type]
 
     return (
         <li className={styles.historyItem}>

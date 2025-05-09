@@ -1,11 +1,18 @@
 import { GM_getValue, GM_setValue } from '$'
 import { logger } from '@/utils/logger'
 
+/**
+ * - `answer` - 回答
+ * - `article` - 文章
+ * - `pin` - 想法
+ */
+type ZhihuContentType = 'answer' | 'article' | 'pin'
+
 export interface ZhihuContent {
     authorName: string
     itemId: number
     title: string
-    type: 'answer' | 'article'
+    type: ZhihuContentType
     url?: string
 }
 
@@ -99,8 +106,17 @@ const saveHistoryFromElement = (item: HTMLElement) => {
     }
     try {
         const data: ZhihuContent = JSON.parse(zop)
-        const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
+        if(data.type === 'pin') {
+            const userLink = item.closest(".Feed")?.querySelector<HTMLAnchorElement>(".UserLink-link")
+            if (userLink)data.authorName = userLink.innerText
+            data.url = `https://www.zhihu.com/pin/${data.itemId}`
+            const contentText = item.querySelector<HTMLDivElement>(`.RichText`)?.innerText
+            if (contentText) data.title = contentText
+
+        } else {
+            const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
         if (link) data.url = link.href
+        }
         saveHistory(data)
     } catch (err) {
         logger.error('解析历史记录失败:', err)
