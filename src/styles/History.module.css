@@ -120,8 +120,7 @@
   list-style: none;
   margin: 0;
   display: flex;
-  /* 新添加的项放在顶部 */
-  flex-direction: column-reverse;
+  flex-direction: column;
   padding: 0 1.5em;
 }
 

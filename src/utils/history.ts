@@ -77,7 +77,7 @@ export const getHistory = (): ZhihuContent[] => {
             migrateToGMStorage()
         }
         const raw = GM_getValue(STORAGE_KEY)
-        return raw ? JSON.parse(raw) : []
+        return raw ? JSON.parse(raw).reverse() : []
     } catch (error) {
         logger.error('获取浏览历史失败:', error)
         return []
