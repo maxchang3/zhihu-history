@@ -13,13 +13,22 @@ interface HistoryItemProps {
 
 const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ item }, ref) => {
     const itemTypeClass = styles[item.type]
+    const chineseType = {
+        answer: '问题',
+        article: '文章',
+        pin: '想法',
+    } satisfies Record<ZhihuContent['type'], string>
 
     return (
         <li className={styles.historyItem}>
             <a href={item.url} className={`${styles.link} ${itemTypeClass}`} ref={ref}>
+                <span className={styles.srOnly}>{chineseType[item.type]}</span>
                 {item.title}
+                <span className={styles.srOnly}>作者：{item.authorName}</span>
             </a>
-            <span className={styles.authorInfo}>{item.authorName}</span>
+            <span className={styles.authorInfo} aria-hidden tabIndex={-1}>
+                {item.authorName}
+            </span>
         </li>
     )
 })

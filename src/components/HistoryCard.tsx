@@ -24,11 +24,11 @@ export const HistoryCard: FC = () => {
     }, [])
 
     return (
-        <div className={styles.historyCard} role="complementary" aria-label="历史记录">
+        <div className={styles.historyCard} role="complementary">
             <button
                 className={styles.historyButton}
                 onClick={() => setIsDialogOpen(true)}
-                aria-label="打开历史记录"
+                aria-label="历史记录,打开后按 Esc 关闭"
                 aria-haspopup="dialog"
                 type="button"
             >
