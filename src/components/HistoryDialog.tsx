@@ -1,6 +1,6 @@
 import styles from '@/styles/History.module.css'
 import { type ZhihuContent, getHistory } from '@/utils/history'
-import { type FC, useEffect, useRef } from 'react'
+import { type FC, forwardRef, useEffect, useRef } from 'react'
 
 interface HistoryDialogProps {
     isOpen: boolean
@@ -11,22 +11,23 @@ interface HistoryItemProps {
     item: ZhihuContent
 }
 
-const HistoryItem: FC<HistoryItemProps> = ({ item }) => {
+const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ item }, ref) => {
     const itemTypeClass = styles[item.type]
 
     return (
         <li className={styles.historyItem}>
-            <a href={item.url} className={`${styles.link} ${itemTypeClass}`}>
+            <a href={item.url} className={`${styles.link} ${itemTypeClass}`} ref={ref}>
                 {item.title}
             </a>
             <span className={styles.authorInfo}>{item.authorName}</span>
         </li>
     )
-}
+})
 
 export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
     const historyItems = getHistory()
     const dialogRef = useRef<HTMLDialogElement>(null)
+    const firstItemRef = useRef<HTMLAnchorElement>(null)
 
     useEffect(() => {
         const dialogElement = dialogRef.current
@@ -34,6 +35,7 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
         if (isOpen) {
             dialogElement.showModal()
             document.body.style.overflow = 'hidden'
+            firstItemRef.current?.focus()
         } else if (dialogElement.open) {
             dialogElement.close()
             document.body.style.overflow = ''
@@ -80,8 +82,8 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
                 <div className={styles.dialogBody}>
                     {historyItems.length > 0 ? (
                         <ul className={styles.historyList}>
-                            {historyItems.map((item) => (
-                                <HistoryItem key={item.itemId} item={item} />
+                            {historyItems.map((item, i) => (
+                                <HistoryItem key={item.itemId} item={item} ref={i === 0 ? firstItemRef : null} />
                             ))}
                         </ul>
                     ) : (
