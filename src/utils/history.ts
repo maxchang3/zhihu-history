@@ -112,7 +112,8 @@ const saveHistoryFromElement = (item: HTMLElement) => {
  * 监听点击事件，保存浏览历史
  */
 export const trackHistory = () => {
-    const container = document.querySelector('.Topstory-recommend')
+    // 选择整个 TopstoryContent，当 tab 切换时，内容会被替换
+    const container = document.querySelector('#TopstoryContent')
 
     if (!container) {
         logger.error('未找到首页推荐容器')
