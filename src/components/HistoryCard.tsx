@@ -14,7 +14,7 @@ export const HistoryCard: FC = () => {
                 target.isContentEditable ||
                 target.tagName === 'SELECT'
             if (event.key === 'h' && !isEditableTarget) {
-                setIsDialogOpen(true)
+                setIsDialogOpen((prev) => !prev)
             }
         }
         window.addEventListener('keydown', handleKeyDown)
