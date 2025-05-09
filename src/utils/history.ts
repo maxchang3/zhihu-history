@@ -106,16 +106,15 @@ const saveHistoryFromElement = (item: HTMLElement) => {
     }
     try {
         const data: ZhihuContent = JSON.parse(zop)
-        if(data.type === 'pin') {
-            const userLink = item.closest(".Feed")?.querySelector<HTMLAnchorElement>(".UserLink-link")
-            if (userLink)data.authorName = userLink.innerText
+        if (data.type === 'pin') {
+            const userLink = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
+            if (userLink) data.authorName = userLink.innerText
             data.url = `https://www.zhihu.com/pin/${data.itemId}`
             const contentText = item.querySelector<HTMLDivElement>(`.RichText`)?.innerText
             if (contentText) data.title = contentText
-
         } else {
             const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
-        if (link) data.url = link.href
+            if (link) data.url = link.href
         }
         saveHistory(data)
     } catch (err) {
