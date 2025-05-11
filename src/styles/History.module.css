@@ -79,6 +79,7 @@
   background-color: white;
   max-width: 800px;
   width: 80%;
+  overflow: hidden;
 }
 
 .dialog::backdrop {
