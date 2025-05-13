@@ -59,19 +59,6 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
                 <header className={styles.dialogHeader}>
                     <h2 className={styles.dialogTitle}>浏览历史</h2>
                     <SearchBox searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-                    {/**
-                     * 适配知乎增强（https://greasyfork.org/scripts/419081）
-                     * 知乎增强的快捷关闭悬浮评论使用 `button[aria-label="关闭"]` 匹配关闭按钮
-                     * 此处我们设置 `aria-label="关闭历史记录"` 来避免冲突
-                     */}
-                    <button
-                        type="button"
-                        className={styles.closeButton}
-                        aria-label="关闭历史记录"
-                        onClick={handleClose}
-                    >
-                        ✕
-                    </button>
                 </header>
                 <div className={styles.dialogBody}>
                     <SearchStatus totalCount={historyItems.length} matchedCount={searchTerm ? matchedItems.size : -1} />
