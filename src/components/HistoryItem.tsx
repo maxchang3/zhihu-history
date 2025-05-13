@@ -128,14 +128,12 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
                 <div className={Item.header}>
                     <span className={`${Item.title} ${Item[item.type]}`}>{highlightedTitle}</span>
                     <span className={Item.visitTime} title={formattedVisitTime?.full} aria-hidden tabIndex={-1}>
-                        {formattedVisitTime?.short ?? item.authorName}
+                        {formattedVisitTime?.short ?? (highlightedAuthorName || item.authorName)}
                     </span>
                 </div>
                 {
                     // 没有访问时间的是之前的历史记录，没有包含作者的 content，所以需要提示作者
-                    !formattedVisitTime && (
-                        <span className={styles.srOnly}>作者：{highlightedAuthorName || item.authorName}</span>
-                    )
+                    !formattedVisitTime && <span className={styles.srOnly}>作者：{item.authorName}</span>
                 }
                 {formattedVisitTime && (
                     <span className={styles.srOnly}>
