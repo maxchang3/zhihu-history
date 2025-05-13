@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/817d91da-4f26-40e0-8a1f-7905bfb8a199" width="50%" />
+</p>
+
 # 知乎历史记录
 
 ![Greasy Fork 总下载量](https://img.shields.io/greasyfork/dt/459852?style=flat-square&color=444)
