@@ -140,69 +140,6 @@
   padding: 0 1.5em;
 }
 
-.historyItem {
-  padding: var(--spacing-md) 0;
-  border-bottom: 1px solid #f0f0f0;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--spacing-md);
-}
-
-.historyItem:last-child {
-  border-bottom: none;
-}
-
-.link {
-  text-decoration: none;
-  color: var(--text-color);
-  font-weight: 500;
-  transition: color 0.2s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: inline-block;
-}
-
-.link:hover,
-.link:focus {
-  color: var(--primary-color);
-}
-
-.authorInfo {
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.answer::before,
-.article::before,
-.pin::before {
-  background-color: var(--primary-bg);
-  font-weight: bold;
-  font-size: var(--font-size-sm);
-  padding: 1px var(--spacing-sm) 0;
-  border-radius: var(--border-radius-sm);
-  margin-right: var(--spacing-sm);
-  display: inline-block;
-}
-
-.answer::before {
-  content: "问题";
-  color: #2196f3;
-}
-
-.article::before {
-  content: "文章";
-  color: #004b87;
-}
-
-.pin::before {
-  content: "想法";
-  color: #60a912;
-}
-
 .emptyState {
   text-align: center;
   padding: var(--spacing-xl);

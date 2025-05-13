@@ -14,6 +14,8 @@ export interface ZhihuContent {
     title: string
     type: ZhihuContentType
     url?: string
+    visitTime?: number
+    content?: string
 }
 
 const STORAGE_KEY = 'ZH_HISTORY'
@@ -107,15 +109,27 @@ const saveHistoryFromElement = (item: HTMLElement) => {
     try {
         const data: ZhihuContent = JSON.parse(zop)
         if (data.type === 'pin') {
-            const userLink = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
-            if (userLink) data.authorName = userLink.innerText
+            const userLinkEl = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
+            if (userLinkEl) data.authorName = userLinkEl.innerText
             data.url = `https://www.zhihu.com/pin/${data.itemId}`
-            const contentText = item.querySelector<HTMLDivElement>(`.RichText`)?.innerText
-            if (contentText) data.title = contentText
+            const contentTextEl = item.querySelector<HTMLDivElement>(`.RichText`)?.innerText
+            if (contentTextEl) data.title = contentTextEl
         } else {
-            const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
-            if (link) data.url = link.href
+            const linkEl = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
+            if (linkEl) data.url = linkEl.href
+            const contentEl = item.querySelector<HTMLSpanElement>('.RichText')
+            if (contentEl) {
+                let contentText = contentEl.innerText
+                /**
+                 * 获取元素可能发现在内容展开后，此处是不包含作者名的，所以我们手工加上
+                 */
+                if (!contentText.startsWith(data.authorName)) {
+                    contentText = `${data.authorName}：${contentText}`
+                }
+                data.content = contentText.slice(0, 120) + '...'
+            }
         }
+        data.visitTime = Date.now()
         saveHistory(data)
     } catch (err) {
         logger.error('解析历史记录失败:', err)
