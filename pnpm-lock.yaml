@@ -23,6 +23,9 @@ importers:
       '@types/react-dom':
         specifier: ^17.0.2
         version: 17.0.26(@types/react@17.0.85)
+      '@types/throttle-debounce':
+        specifier: ^5.0.2
+        version: 5.0.2
       '@vitejs/plugin-react':
         specifier: ^4.4.1
         version: 4.4.1(vite@6.3.5(@types/node@22.15.14)(jiti@2.4.2)(yaml@2.7.1))
@@ -35,6 +38,9 @@ importers:
       react-dom:
         specifier: ^17.0.2
         version: 17.0.2(react@17.0.2)
+      throttle-debounce:
+        specifier: ^5.0.2
+        version: 5.0.2
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -486,6 +492,9 @@ packages:
   '@types/scheduler@0.16.8':
     resolution: {integrity: sha512-WZLiwShhwLRmeV6zH+GkbOFT6Z6VklCItrDioxUnv+u4Ll+8vKeFySoFyK/0ctcRpOmwAicELfmys1sDc/Rw+A==}
 
+  '@types/throttle-debounce@5.0.2':
+    resolution: {integrity: sha512-pDzSNulqooSKvSNcksnV72nk8p7gRqN8As71Sp28nov1IgmPKWbOEIwAWvBME5pPTtaXJAvG3O4oc76HlQ4kqQ==}
+
   '@vitejs/plugin-react@4.4.1':
     resolution: {integrity: sha512-IpEm5ZmeXAP/osiBXVVP5KjFMzbWOonMs0NaQQl+xYnUAcq4oHUBsF2+p4MgKWG4YMmFYJU8A6sxRPuowllm6w==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -818,6 +827,10 @@ packages:
 
   systemjs@6.15.1:
     resolution: {integrity: sha512-Nk8c4lXvMB98MtbmjX7JwJRgJOL8fluecYCfCeYBznwmpOs8Bf15hLM6z4z71EDAhQVrQrI+wt1aLWSXZq+hXA==}
+
+  throttle-debounce@5.0.2:
+    resolution: {integrity: sha512-B71/4oyj61iNH0KeCamLuE2rmKuTO5byTOSVwECM5FA7TiAiAW+UqTKZ9ERueC4qvgSttUhdmq1mXC3kJqGX7A==}
+    engines: {node: '>=12.22'}
 
   tinyexec@0.3.2:
     resolution: {integrity: sha512-KQQR9yN7R5+OSwaK0XQoj22pwHoTlgYqmUscPYoknOoWCWfj/5/ABTMRi69FrKU5ffPVh5QcFikpWJI/P1ocHA==}
@@ -1248,6 +1261,8 @@ snapshots:
 
   '@types/scheduler@0.16.8': {}
 
+  '@types/throttle-debounce@5.0.2': {}
+
   '@vitejs/plugin-react@4.4.1(vite@6.3.5(@types/node@22.15.14)(jiti@2.4.2)(yaml@2.7.1))':
     dependencies:
       '@babel/core': 7.27.1
@@ -1593,6 +1608,8 @@ snapshots:
   source-map-js@1.2.1: {}
 
   systemjs@6.15.1: {}
+
+  throttle-debounce@5.0.2: {}
 
   tinyexec@0.3.2: {}
 

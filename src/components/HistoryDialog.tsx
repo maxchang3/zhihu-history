@@ -1,7 +1,11 @@
 import { HistoryItem } from '@/components/HistoryItem'
+import { SearchBox } from '@/components/SearchBox'
+import { SearchStatus } from '@/components/SearchStatus'
+import useDebouncedState from '@/hooks/useDebouncedState'
 import styles from '@/styles/History.module.css'
 import { getHistory } from '@/utils/history'
-import { type FC, useEffect, useRef } from 'react'
+import { searchItem } from '@/utils/search'
+import { type FC, useEffect, useMemo, useRef } from 'react'
 
 interface HistoryDialogProps {
     isOpen: boolean
@@ -9,7 +13,12 @@ interface HistoryDialogProps {
 }
 
 export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
+    const [searchTerm, debouncedValue, setSearchTerm] = useDebouncedState('', 300)
+
     const historyItems = getHistory()
+
+    const matchedItems = useMemo(() => searchItem(historyItems, debouncedValue), [historyItems, debouncedValue])
+
     const dialogRef = useRef<HTMLDialogElement>(null)
     const firstItemRef = useRef<HTMLAnchorElement>(null)
 
@@ -49,6 +58,7 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
             <div className={styles.dialogContent}>
                 <header className={styles.dialogHeader}>
                     <h2 className={styles.dialogTitle}>浏览历史</h2>
+                    <SearchBox searchTerm={searchTerm} onSearchChange={setSearchTerm} />
                     {/**
                      * 适配知乎增强（https://greasyfork.org/scripts/419081）
                      * 知乎增强的快捷关闭悬浮评论使用 `button[aria-label="关闭"]` 匹配关闭按钮
@@ -64,15 +74,23 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
                     </button>
                 </header>
                 <div className={styles.dialogBody}>
-                    {historyItems.length > 0 ? (
-                        <ul className={styles.historyList}>
-                            {historyItems.map((item, i) => (
-                                <HistoryItem key={item.itemId} item={item} ref={i === 0 ? firstItemRef : null} />
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className={styles.emptyState}>暂无浏览历史</div>
-                    )}
+                    <SearchStatus totalCount={historyItems.length} matchedCount={searchTerm ? matchedItems.size : -1} />
+                    <ul className={styles.historyList}>
+                        {historyItems.map((item, i) => {
+                            // 搜索状态下，只渲染匹配的项
+                            const isMatch = !searchTerm || matchedItems.has(i)
+                            if (!isMatch) return null
+
+                            return (
+                                <HistoryItem
+                                    key={item.itemId}
+                                    item={item}
+                                    searchResult={matchedItems.get(i)}
+                                    ref={i === 0 ? firstItemRef : null}
+                                />
+                            )
+                        })}
+                    </ul>
                 </div>
             </div>
         </dialog>
