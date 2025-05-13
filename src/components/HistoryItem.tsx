@@ -34,7 +34,7 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
           }
     return (
         <li className={Item.item}>
-            <a href={item.url} className={Item.link} ref={ref} target="_blank" rel="noreferrer" tabIndex={0}>
+            <a href={item.url} className={Item.link} ref={ref}>
                 <span className={styles.srOnly}>{chineseType[item.type]}</span>
                 <div className={Item.header}>
                     <span className={`${Item.title} ${Item[item.type]}`}>{item.title}</span>
@@ -51,8 +51,8 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
                         浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
                     </span>
                 )}
-                {item.content && <p className={Item.content}>{item.content}</p>}
             </a>
+            {item.content && <p className={Item.content}>{item.content}</p>}
         </li>
     )
 })
