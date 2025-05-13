@@ -34,14 +34,18 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
           }
     return (
         <li className={Item.item}>
-            <a href={item.url} className={Item.link} ref={ref} target="_blank" rel="noreferrer">
+            <a href={item.url} className={Item.link} ref={ref} target="_blank" rel="noreferrer" tabIndex={0}>
                 <span className={styles.srOnly}>{chineseType[item.type]}</span>
-                <div className={Item.header} aria-hidden tabIndex={-1}>
+                <div className={Item.header}>
                     <span className={`${Item.title} ${Item[item.type]}`}>{item.title}</span>
-                    <span className={Item.visitTime} title={formattedVisitTime?.full}>
+                    <span className={Item.visitTime} title={formattedVisitTime?.full} aria-hidden tabIndex={-1}>
                         {formattedVisitTime?.short ?? item.authorName}
                     </span>
                 </div>
+                {
+                    // 没有访问时间的是之前的历史记录，没有包含作者的 content，所以需要提示作者
+                    !formattedVisitTime && <span className={styles.srOnly}>作者：{item.authorName}</span>
+                }
                 {formattedVisitTime && (
                     <span className={styles.srOnly}>
                         浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
