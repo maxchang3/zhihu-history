@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1
+### Fixes
+
+- 修复在知乎美化中开启「宽屏显示」时历史记录面板无法显示的问题（通过 `createPortal` 将 `HistoryDialog` 直接挂载到 `body` 元素上）
+
 ## 1.1.0
 ### Features
 
