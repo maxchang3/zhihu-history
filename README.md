@@ -49,10 +49,9 @@
 - <kbd>Tab</kbd> - 在历史记录面板中切换焦点
   - <kbd>Shift</kbd> + <kbd>Tab</kbd> - 反向切换焦点
   - 打开面板后，默认聚焦于第一条历史记录
-  - 退出面板方式：
-    - <kbd>H</kbd> - 再次按下以关闭
-    - 通过 <kbd>Shift</kbd> + <kbd>Tab</kbd> 聚焦到退出按钮后按 <kbd>Enter</kbd>
-    - <kbd>ESC</kbd> - 直接退出
+- 退出面板方式：
+  - <kbd>H</kbd> - 再次按下以关闭
+  - <kbd>ESC</kbd> - 直接退出
 - <kbd>Enter</kbd> - 打开当前选中的回答
 
 ## 感谢
