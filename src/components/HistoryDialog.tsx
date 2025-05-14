@@ -6,6 +6,7 @@ import styles from '@/styles/History.module.css'
 import { getHistory } from '@/utils/history'
 import { searchItem } from '@/utils/search'
 import { type FC, useEffect, useMemo, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 interface HistoryDialogProps {
     isOpen: boolean
@@ -39,7 +40,7 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
         onClose()
     }
 
-    return (
+    return createPortal(
         <dialog
             ref={dialogRef}
             className={styles.dialog}
@@ -80,6 +81,7 @@ export const HistoryDialog: FC<HistoryDialogProps> = ({ isOpen, onClose }) => {
                     </ul>
                 </div>
             </div>
-        </dialog>
+        </dialog>,
+        document.body
     )
 }
