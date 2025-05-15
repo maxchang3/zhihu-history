@@ -1,4 +1,4 @@
-import styles from '@/styles/History.module.css'
+import Search from '@/styles/Search.module.css'
 import type { FC } from 'react'
 
 interface SearchStatusProps {
@@ -14,14 +14,14 @@ interface SearchStatusProps {
 
 export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, matchedCount }) => {
     // 无历史记录情况
-    if (totalCount === 0) return <div className={styles.emptyState}>暂无浏览历史</div>
+    if (totalCount === 0) return <div className={Search.emptyState}>暂无浏览历史</div>
 
     // 有搜索词的情况
     if (matchedCount !== -1) {
         // 搜索无结果
-        if (matchedCount === 0) return <div className={styles.emptyState}>没有找到匹配的历史记录</div>
+        if (matchedCount === 0) return <div className={Search.emptyState}>没有找到匹配的历史记录</div>
         // 有搜索结果
-        return <div className={styles.searchInfo}>找到 {matchedCount} 条匹配结果</div>
+        return <div className={Search.info}>找到 {matchedCount} 条匹配结果</div>
     }
 
     // 无搜索词时不显示状态

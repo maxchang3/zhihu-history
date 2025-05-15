@@ -1,4 +1,3 @@
-import styles from '@/styles/History.module.css'
 import Item from '@/styles/Item.module.css'
 import type { ZhihuContent } from '@/utils/history'
 import type { SearchResult } from '@/utils/search'
@@ -124,7 +123,7 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
     return (
         <li className={Item.item}>
             <a href={item.url} className={Item.link} ref={ref}>
-                <span className={styles.srOnly}>{contentTypeMap[item.type]}</span>
+                <span className={Item.srOnly}>{contentTypeMap[item.type]}</span>
                 <div className={Item.header}>
                     <span className={`${Item.title} ${Item[item.type]}`}>{highlightedTitle}</span>
                     <span className={Item.visitTime} title={formattedVisitTime?.full} aria-hidden tabIndex={-1}>
@@ -133,10 +132,10 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
                 </div>
                 {
                     // 没有访问时间的是之前的历史记录，没有包含作者的 content，所以需要提示作者
-                    !formattedVisitTime && <span className={styles.srOnly}>作者：{item.authorName}</span>
+                    !formattedVisitTime && <span className={Item.srOnly}>作者：{item.authorName}</span>
                 }
                 {formattedVisitTime && (
-                    <span className={styles.srOnly}>
+                    <span className={Item.srOnly}>
                         浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
                     </span>
                 )}

@@ -1,0 +1,27 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  border-bottom: 1px solid #eee;
+  padding-bottom: var(--spacing-md);
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-color);
+}
+
+.body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 1.5em;
+}

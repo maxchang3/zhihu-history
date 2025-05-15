@@ -1,4 +1,4 @@
-import styles from '@/styles/History.module.css'
+import Search from '@/styles/Search.module.css'
 import type { ChangeEvent, FC } from 'react'
 
 interface SearchBoxProps {
@@ -17,17 +17,17 @@ export const SearchBox: FC<SearchBoxProps> = ({ searchTerm, onSearchChange, plac
     }
 
     return (
-        <div className={styles.searchContainer}>
+        <div className={Search.container}>
             <input
                 type="text"
                 placeholder={placeholder}
-                className={styles.searchInput}
+                className={Search.input}
                 value={searchTerm}
                 onChange={handleChange}
                 aria-label={placeholder}
             />
             {searchTerm && (
-                <button type="button" className={styles.clearSearchButton} onClick={clearSearch} aria-label="清除搜索">
+                <button type="button" className={Search.clearButton} onClick={clearSearch} aria-label="清除搜索">
                     ✕
                 </button>
             )}

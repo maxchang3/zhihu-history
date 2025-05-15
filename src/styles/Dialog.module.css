@@ -1,0 +1,39 @@
+/* 添加过渡效果 */
+.dialog,
+.dialog::backdrop {
+  transition: display 0.25s allow-discrete, overlay 0.25s allow-discrete, opacity 0.25s;
+  opacity: 0;
+}
+
+.dialog[open],
+.dialog[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .dialog[open],
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.dialog {
+  padding: 0;
+  border: 0;
+  border-radius: var(--border-radius);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  background-color: white;
+  max-width: 800px;
+  width: 80%;
+  overflow: hidden;
+  user-select: text !important;
+}
+
+.dialog::backdrop {
+  background-color: var(--backdrop-color);
+}
+
+.content {
+  padding: var(--spacing-lg) var(--spacing-xl);
+  outline: none;
+}
