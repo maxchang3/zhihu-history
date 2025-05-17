@@ -1,5 +1,6 @@
 import { GM_getValue, GM_setValue } from '$'
 import { logger } from '@/utils/logger'
+import { Result } from '@/utils/result'
 
 /**
  * - `answer` - 回答
@@ -24,17 +25,17 @@ const HISTORY_LIMIT_KEY = 'HISTORY_LIMIT'
 export const DEFAULT_HISTORY_LIMIT = 20
 export const HISTORY_LIMIT = GM_getValue(HISTORY_LIMIT_KEY) || DEFAULT_HISTORY_LIMIT
 
-export const setHistoryLimit = (limit: string): [isOK: true, message: null] | [isOK: false, message: string] => {
+export const setHistoryLimit = (limit: string): Result<null, string> => {
     const numericLimit = Number(limit)
     if (!Number.isNaN(numericLimit) && numericLimit > 0) {
         GM_setValue(HISTORY_LIMIT_KEY, numericLimit)
-        return [true, null]
+        return Result.Ok(null)
     }
-    return [false, '输入无效，请输入一个正整数']
+    return Result.Err('输入无效，请输入一个正整数')
 }
 
-export const saveHistory = (item: ZhihuContent) => {
-    try {
+export const saveHistory = (item: ZhihuContent) =>
+    Result.try(() => {
         const raw = GM_getValue(STORAGE_KEY)
         const historyItems: ZhihuContent[] = raw ? JSON.parse(raw) : []
 
@@ -51,16 +52,13 @@ export const saveHistory = (item: ZhihuContent) => {
         }
 
         GM_setValue(STORAGE_KEY, JSON.stringify(historyItems))
-    } catch (error) {
-        logger.error('保存浏览历史失败:', error)
-    }
-}
+    })
 
 /**
  * 将旧的 localStorage 数据迁移到用户脚本管理器的存储中
  */
-const migrateToGMStorage = () => {
-    try {
+const migrateToGMStorage = () =>
+    Result.try(() => {
         logger.log('检测到旧的浏览历史数据，正在转换...')
         const raw = localStorage.getItem(STORAGE_KEY)
         if (raw) {
@@ -68,72 +66,79 @@ const migrateToGMStorage = () => {
             localStorage.removeItem(STORAGE_KEY)
         }
         logger.log('转换浏览历史数据成功')
-    } catch (error) {
-        logger.error('转换浏览历史失败:', error)
-    }
-}
+    })
 
-export const getHistory = (): ZhihuContent[] => {
-    try {
+/**
+ * 获取浏览历史
+ */
+export const getHistory = () =>
+    Result.try(() => {
         if (localStorage.getItem(STORAGE_KEY) !== null) {
-            migrateToGMStorage()
+            const migrationResult = migrateToGMStorage()
+            migrationResult.mapErr((error) => {
+                logger.error('历史记录转换失败：', error)
+            })
         }
         const raw = GM_getValue(STORAGE_KEY)
-        return raw ? JSON.parse(raw).reverse() : []
-    } catch (error) {
-        logger.error('获取浏览历史失败:', error)
-        return []
-    }
-}
+        return (raw ? JSON.parse(raw).reverse() : []) as ZhihuContent[]
+    }).match({
+        Ok: (history) => history,
+        Err: (error) => {
+            logger.error('获取浏览历史失败：', error)
+            return []
+        },
+    })
 
 /**
  * 清空浏览历史
  */
-export const clearHistory = () => {
-    try {
+export const clearHistory = (): Result<null, Error> =>
+    Result.try(() => {
         GM_setValue(STORAGE_KEY, null)
-    } catch (error) {
-        logger.error('清空浏览历史失败:', error)
+    })
+
+const augmentContent = (item: HTMLElement, rawContent: ZhihuContent): ZhihuContent => {
+    rawContent.visitTime = Date.now()
+    const extractContent = (): string | undefined => {
+        const span = item.querySelector<HTMLSpanElement>('.RichText')
+        if (!span) return undefined
+        let text = span.innerText.trim()
+        /**
+         * 如果获取到的内容不包含作者名称，则手动添加作者前缀
+         * 这通常发生在回答正好被展开的情况下，此时获取的是不包括作者名的正文
+         */
+        if (!text.startsWith(rawContent.authorName)) text = `${rawContent.authorName}：${text}`
+        return text.length > 120 ? `${text.slice(0, 120)}...` : text
     }
+    switch (rawContent.type) {
+        case 'pin': {
+            const userLink = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
+            if (userLink) rawContent.authorName = userLink.innerText.trim()
+            rawContent.url = `https://www.zhihu.com/pin/${rawContent.itemId}`
+            break
+        }
+
+        case 'article':
+        case 'answer': {
+            const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
+            if (link) rawContent.url = link.href
+            rawContent.content = extractContent()
+            break
+        }
+    }
+    return rawContent
 }
 
 /**
  * 从 DOM 元素中提取历史记录信息并保存
  */
-const saveHistoryFromElement = (item: HTMLElement) => {
+export const saveHistoryFromElement = (item: HTMLElement): Result<null, string> => {
     const zop = item.dataset.zop
-    if (!zop) {
-        logger.error('无法读取回答或文章信息', item.dataset)
-        return
-    }
-    try {
-        const data: ZhihuContent = JSON.parse(zop)
-        if (data.type === 'pin') {
-            const userLinkEl = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
-            if (userLinkEl) data.authorName = userLinkEl.innerText
-            data.url = `https://www.zhihu.com/pin/${data.itemId}`
-            const contentTextEl = item.querySelector<HTMLDivElement>(`.RichText`)?.innerText
-            if (contentTextEl) data.title = contentTextEl
-        } else {
-            const linkEl = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
-            if (linkEl) data.url = linkEl.href
-            const contentEl = item.querySelector<HTMLSpanElement>('.RichText')
-            if (contentEl) {
-                let contentText = contentEl.innerText
-                /**
-                 * 获取元素可能发现在内容展开后，此处是不包含作者名的，所以我们手工加上
-                 */
-                if (!contentText.startsWith(data.authorName)) {
-                    contentText = `${data.authorName}：${contentText}`
-                }
-                data.content = contentText.slice(0, 120) + '...'
-            }
-        }
-        data.visitTime = Date.now()
-        saveHistory(data)
-    } catch (err) {
-        logger.error('解析历史记录失败:', err)
-    }
+    if (!zop) return Result.Err(`无法读取回答或文章信息：${JSON.stringify(item.dataset)}`)
+    return Result.try(() => JSON.parse(zop) as ZhihuContent)
+        .map((data) => augmentContent(item, data))
+        .andThen(saveHistory)
+        .mapErr((err) => `保存浏览历史失败: ${err}`)
 }
 
 /**
@@ -152,6 +157,7 @@ export const trackHistory = () => {
         const target = e.target
         if (!(target instanceof HTMLElement)) return
         const item = target.closest<HTMLElement>('.ContentItem')
-        if (item) saveHistoryFromElement(item)
+        if (!item) return
+        saveHistoryFromElement(item).mapErr((err) => logger.error(err))
     })
 }
