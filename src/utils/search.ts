@@ -1,4 +1,4 @@
-import type { ZhihuContent } from '@/utils/history'
+import type { ZhihuMetadata } from '@/utils/history'
 
 /**
  * 使用 Intl.Segmenter 或空格分割进行分词
@@ -49,7 +49,7 @@ const segmenter = createSegmenter()
  * 判断某一项是否匹配搜索关键词
  * 匹配规则：标题、内容或作者名中包含关键词
  */
-export const isItemMatch = (item: ZhihuContent, term: string): boolean => {
+export const isItemMatch = (item: ZhihuMetadata, term: string): boolean => {
     // 空搜索词总是匹配所有项
     if (!term) return true
 
@@ -116,7 +116,7 @@ const findAllMatches = (text: string | undefined, searchTerm: string): MatchPosi
 /**
  * 对历史项进行搜索，返回匹配的项及匹配位置信息
  */
-export const searchItem = (items: ZhihuContent[], term: string): Map<number, SearchResult> => {
+export const searchItem = (items: ZhihuMetadata[], term: string): Map<number, SearchResult> => {
     // 快速返回：空关键词
     if (!term) return new Map()
 

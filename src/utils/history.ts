@@ -2,16 +2,23 @@ import { GM_getValue, GM_setValue } from '$'
 import { logger } from '@/utils/logger'
 import { Result } from '@/utils/result'
 
+// biome-ignore lint/suspicious/noExplicitAny: use for type guard
+function isIn<T>(values: readonly T[], x: any): x is T {
+    return values.includes(x)
+}
+
+const CONTENT_TYPE = ['answer', 'article', 'pin'] as const
+
 /**
  * - `answer` - 回答
  * - `article` - 文章
  * - `pin` - 想法
  */
-type ZhihuContentType = 'answer' | 'article' | 'pin'
+type ZhihuContentType = (typeof CONTENT_TYPE)[number]
 
-export interface ZhihuContent {
+export interface ZhihuMetadata {
     authorName: string
-    itemId: number
+    itemId: string
     title: string
     type: ZhihuContentType
     url?: string
@@ -34,10 +41,10 @@ export const setHistoryLimit = (limit: string): Result<null, string> => {
     return Result.Err('输入无效，请输入一个正整数')
 }
 
-export const saveHistory = (item: ZhihuContent) =>
+export const saveHistory = (item: ZhihuMetadata) =>
     Result.try(() => {
         const raw = GM_getValue(STORAGE_KEY)
-        const historyItems: ZhihuContent[] = raw ? JSON.parse(raw) : []
+        const historyItems: ZhihuMetadata[] = raw ? JSON.parse(raw) : []
 
         // 检查是否存在重复项，如果有则删除旧的
         const existingIndex = historyItems.findIndex((i) => i.itemId === item.itemId)
@@ -80,7 +87,7 @@ export const getHistory = () =>
             })
         }
         const raw = GM_getValue(STORAGE_KEY)
-        return (raw ? JSON.parse(raw).reverse() : []) as ZhihuContent[]
+        return (raw ? JSON.parse(raw).reverse() : []) as ZhihuMetadata[]
     }).match({
         Ok: (history) => history,
         Err: (error) => {
@@ -97,9 +104,12 @@ export const clearHistory = (): Result<null, Error> =>
         GM_setValue(STORAGE_KEY, null)
     })
 
-const augmentContent = (item: HTMLElement, rawContent: ZhihuContent): ZhihuContent => {
-    rawContent.visitTime = Date.now()
-    const extractContent = (): string | undefined => {
+/**
+ * 扩展元数据
+ */
+const extendMetadata = (item: HTMLElement, rawMetadata: ZhihuMetadata): ZhihuMetadata => {
+    rawMetadata.visitTime = Date.now()
+    const extractMetadata = (): string | undefined => {
         const span = item.querySelector<HTMLSpanElement>('.RichText')
         if (!span) return undefined
         let text = span.innerText.trim()
@@ -107,44 +117,110 @@ const augmentContent = (item: HTMLElement, rawContent: ZhihuContent): ZhihuConte
          * 如果获取到的内容不包含作者名称，则手动添加作者前缀
          * 这通常发生在回答正好被展开的情况下，此时获取的是不包括作者名的正文
          */
-        if (!text.startsWith(rawContent.authorName)) text = `${rawContent.authorName}：${text}`
+        if (!text.startsWith(rawMetadata.authorName)) text = `${rawMetadata.authorName}：${text}`
         return text.length > 120 ? `${text.slice(0, 120)}...` : text
     }
-    switch (rawContent.type) {
+    switch (rawMetadata.type) {
         case 'pin': {
             const userLink = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
-            if (userLink) rawContent.authorName = userLink.innerText.trim()
-            rawContent.url = `https://www.zhihu.com/pin/${rawContent.itemId}`
+            if (userLink) rawMetadata.authorName = userLink.innerText.trim()
+            rawMetadata.url = `https://www.zhihu.com/pin/${rawMetadata.itemId}`
             break
         }
 
         case 'article':
         case 'answer': {
-            const link = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
-            if (link) rawContent.url = link.href
-            rawContent.content = extractContent()
+            if (!rawMetadata.url) {
+                const linkEl = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
+                if (linkEl) rawMetadata.url = linkEl.href
+            }
+            rawMetadata.content = extractMetadata()
             break
         }
     }
-    return rawContent
+    return rawMetadata
 }
 
-/**
- * 从 DOM 元素中提取历史记录信息并保存
- */
-export const saveHistoryFromElement = (item: HTMLElement): Result<null, string> => {
+const extractMetadataFromZop = (item: HTMLElement): Result<ZhihuMetadata, string> => {
     const zop = item.dataset.zop
     if (!zop) return Result.Err(`无法读取回答或文章信息：${JSON.stringify(item.dataset)}`)
-    return Result.try(() => JSON.parse(zop) as ZhihuContent)
-        .map((data) => augmentContent(item, data))
-        .andThen(saveHistory)
-        .mapErr((err) => `保存浏览历史失败: ${err}`)
+    return Result.try(() => JSON.parse(zop) as ZhihuMetadata).mapErr((err) =>
+        err instanceof Error ? err.message : String(err)
+    )
+}
+
+const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, string> => {
+    const type =
+        item.getAttribute('itemprop') ||
+        // 如果没有 itemprop 属性，检查是否有关注按钮来确定是否为回答类型
+        (item.querySelector('.FollowButton') ? 'answer' : undefined)
+    if (!type) return Result.Err(`元素缺少 itemprop 属性：${item.outerHTML.substring(0, 100)}...`)
+    if (!isIn(CONTENT_TYPE, type))
+        return Result.Err(`元素 itemprop 值不合法："${type}"，支持的类型：${CONTENT_TYPE.join(', ')}`)
+
+    // 获取链接元素
+    const linkEL = item.querySelector<HTMLAnchorElement>('a')
+    if (!linkEL) return Result.Err(`元素缺少链接标签：${item.outerHTML.substring(0, 100)}...`)
+    const url = linkEL.href
+
+    // 提取标题
+    const titleElement = item.querySelector<HTMLSpanElement>('.ContentItem-title')
+    if (!titleElement) return Result.Err(`元素缺少标题标签：${item.outerHTML.substring(0, 100)}...`)
+    const title = titleElement.innerText.trim()
+    if (!title) return Result.Err(`元素的标题内容为空`)
+
+    // 从URL中提取内容ID
+    const itemId = url.split('/').pop()
+    if (!itemId) return Result.Err(`无法从 URL 中提取 itemId：${url}`)
+
+    return Result.Ok({
+        authorName: '', // 知乎重构界面后已经不需要显示存储作者名
+        type,
+        itemId,
+        url,
+        title,
+    })
 }
 
 /**
- * 监听点击事件，保存浏览历史
+ * 通用函数，从 DOM 元素中提取和保存历史记录
  */
-export const trackHistory = () => {
+const saveHistoryFromElement = (
+    item: HTMLElement,
+    extractMetadata: (item: HTMLElement) => Result<ZhihuMetadata, string>
+): Result<null, string> => {
+    return extractMetadata(item)
+        .map((data) => extendMetadata(item, data))
+        .andThen((metadata) =>
+            saveHistory(metadata).mapErr((err) => (err instanceof Error ? err.message : String(err)))
+        )
+}
+
+/**
+ * 从 DOM 元素中提取历史记录信息并保存（对于首页推荐的元素）
+ * 由于首页推荐的元素使用了 zop 属性来存储数据，因此需要使用不同的提取函数
+ */
+export const saveHistoryFromHomePageElement = (item: HTMLElement): Result<null, string> =>
+    saveHistoryFromElement(item, extractMetadataFromZop)
+
+/**
+ * 从 DOM 元素中提取历史记录信息并保存（对于搜索结果的元素）
+ */
+export const saveHistoryFromSearchElement = (item: HTMLElement): Result<null, string> => {
+    // 处理知乎热榜的内容，拥有 name 属性的 ContentItem 可能是热榜中的内容
+    if (item.hasAttribute('name')) {
+        const newItem = item // 此时的 .ContentItem 是大的 .ContentItem 的子元素，需要在上级元素中查找我们需要的子元素
+            .closest('.HotLanding-contentItem')
+            ?.querySelector<HTMLElement>('.ContentItem')
+        if (newItem) {
+            // 使用找到的正确元素
+            return saveHistoryFromElement(newItem, extractMetadataFromSearch)
+        }
+    }
+    return saveHistoryFromElement(item, extractMetadataFromSearch)
+}
+
+export const trackHomepageHistory = () => {
     // 选择整个 TopstoryContent，当 tab 切换时，内容会被替换
     const container = document.querySelector('#TopstoryContent')
 
@@ -158,6 +234,45 @@ export const trackHistory = () => {
         if (!(target instanceof HTMLElement)) return
         const item = target.closest<HTMLElement>('.ContentItem')
         if (!item) return
-        saveHistoryFromElement(item).mapErr((err) => logger.error(err))
+        saveHistoryFromHomePageElement(item).mapErr((err) => logger.error(err))
     })
+}
+
+export const trackSearchHistory = () => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('type') !== 'content') return
+
+    const container = document.querySelector('.Search-container')
+
+    if (!container) {
+        logger.error('未找到搜索结果容器')
+        return
+    }
+
+    container.addEventListener('click', (e) => {
+        const target = e.target
+        if (!(target instanceof HTMLElement)) return
+        const item = target.closest<HTMLElement>('.ContentItem')
+        if (!item) return
+        saveHistoryFromSearchElement(item).mapErr((err) => logger.error(err))
+    })
+}
+
+/**
+ * 监听点击事件，保存浏览历史
+ */
+export const trackHistory = () => {
+    switch (window.location.pathname) {
+        case '/':
+        case '/follow':
+        case '/hot':
+        case '/column-square': {
+            trackHomepageHistory()
+            break
+        }
+        case '/search': {
+            trackSearchHistory()
+            break
+        }
+    }
 }
