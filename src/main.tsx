@@ -16,9 +16,24 @@ const mountApp = () => {
     const container = document.createElement('div')
     container.id = 'zh-history-root'
 
-    const target =
-        document.querySelector('.CreatorEntrance')?.parentElement || // 右上角的创作者中心入口
-        document.querySelector('.TopSearch')?.parentElement // 搜索页的边栏
+    const target = (() => {
+        switch (location.pathname) {
+            case '/':
+            case '/follow':
+            case '/hot':
+            case '/column-square': {
+                return document.querySelector('.CreatorEntrance')?.parentElement
+            }
+            case '/search': {
+                return document.querySelector('.TopSearch')?.parentElement
+            }
+            default: {
+                if (location.pathname.startsWith('/topic')) {
+                    return document.querySelector('.NumberBoard')?.parentElement
+                }
+            }
+        }
+    })()
 
     if (!target) {
         logger.warn('未找到挂载点')

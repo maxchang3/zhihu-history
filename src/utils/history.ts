@@ -220,9 +220,11 @@ export const saveHistoryFromSearchElement = (item: HTMLElement): Result<null, st
     return saveHistoryFromElement(item, extractMetadataFromSearch)
 }
 
-export const trackHomepageHistory = () => {
-    // 选择整个 TopstoryContent，当 tab 切换时，内容会被替换
-    const container = document.querySelector('#TopstoryContent')
+/**
+ * 记录拥有 zop 属性页面的点击事件
+ */
+export const trackZopHistory = (selector: string) => {
+    const container = document.querySelector(selector)
 
     if (!container) {
         logger.error('未找到首页推荐容器')
@@ -267,12 +269,19 @@ export const trackHistory = () => {
         case '/follow':
         case '/hot':
         case '/column-square': {
-            trackHomepageHistory()
+            // 默认选择整个 TopstoryContent，当 tab 切换时，内容会被替换
+            trackZopHistory('#TopstoryContent')
             break
         }
         case '/search': {
             trackSearchHistory()
             break
+        }
+
+        default: {
+            if (location.pathname.startsWith('/topic')) {
+                trackZopHistory('#TopicMain')
+            }
         }
     }
 }
