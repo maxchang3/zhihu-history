@@ -169,7 +169,7 @@ const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, str
     const title = titleElement.innerText.trim()
     if (!title) return Result.Err(`元素的标题内容为空`)
 
-    // 从URL中提取内容ID
+    // 从 URL 中提取内容ID
     const itemId = url.split('/').pop()
     if (!itemId) return Result.Err(`无法从 URL 中提取 itemId：${url}`)
 
@@ -198,7 +198,6 @@ const saveHistoryFromElement = (
 
 /**
  * 从 DOM 元素中提取历史记录信息并保存（对于首页推荐的元素）
- * 由于首页推荐的元素使用了 zop 属性来存储数据，因此需要使用不同的提取函数
  */
 export const saveHistoryFromHomePageElement = (item: HTMLElement): Result<null, string> =>
     saveHistoryFromElement(item, extractMetadataFromZop)
@@ -206,19 +205,8 @@ export const saveHistoryFromHomePageElement = (item: HTMLElement): Result<null, 
 /**
  * 从 DOM 元素中提取历史记录信息并保存（对于搜索结果的元素）
  */
-export const saveHistoryFromSearchElement = (item: HTMLElement): Result<null, string> => {
-    // 处理知乎热榜的内容，拥有 name 属性的 ContentItem 可能是热榜中的内容
-    if (item.hasAttribute('name')) {
-        const newItem = item // 此时的 .ContentItem 是大的 .ContentItem 的子元素，需要在上级元素中查找我们需要的子元素
-            .closest('.HotLanding-contentItem')
-            ?.querySelector<HTMLElement>('.ContentItem')
-        if (newItem) {
-            // 使用找到的正确元素
-            return saveHistoryFromElement(newItem, extractMetadataFromSearch)
-        }
-    }
-    return saveHistoryFromElement(item, extractMetadataFromSearch)
-}
+export const saveHistoryFromSearchElement = (item: HTMLElement): Result<null, string> =>
+    saveHistoryFromElement(item, extractMetadataFromSearch)
 
 /**
  * 记录拥有 zop 属性页面的点击事件
