@@ -199,13 +199,13 @@ const saveHistoryFromElement = (
 /**
  * 从 DOM 元素中提取历史记录信息并保存（对于首页推荐的元素）
  */
-export const saveHistoryFromHomePageElement = (item: HTMLElement): Result<null, string> =>
+export const saveHistoryFromHomePageElement = (item: HTMLElement) =>
     saveHistoryFromElement(item, extractMetadataFromZop)
 
 /**
  * 从 DOM 元素中提取历史记录信息并保存（对于搜索结果的元素）
  */
-export const saveHistoryFromSearchElement = (item: HTMLElement): Result<null, string> =>
+export const saveHistoryFromSearchElement = (item: HTMLElement) =>
     saveHistoryFromElement(item, extractMetadataFromSearch)
 
 /**
