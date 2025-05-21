@@ -27,6 +27,7 @@ export default defineConfig({
                     'https://www.zhihu.com/follow*',
                     'https://www.zhihu.com/hot*',
                     'https://www.zhihu.com/column-square*',
+                    'https://www.zhihu.com/search?*',
                 ],
                 license: 'MIT',
                 grant: ['unsafeWindow'],

@@ -16,13 +16,16 @@ const mountApp = () => {
     const container = document.createElement('div')
     container.id = 'zh-history-root'
 
-    const target = document.querySelector('.Topstory-container > div:nth-child(2) > div:nth-child(2)')
+    const target =
+        document.querySelector('.CreatorEntrance')?.parentElement || // 右上角的创作者中心入口
+        document.querySelector('.TopSearch')?.parentElement // 搜索页的边栏
+
     if (!target) {
         logger.warn('未找到挂载点')
         return
     }
 
-    target.appendChild(container)
+    target.insertBefore(container, target.firstChild)
 
     ReactDOM.render(<App />, container)
 }
