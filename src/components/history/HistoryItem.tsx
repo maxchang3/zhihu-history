@@ -75,13 +75,7 @@ const highlightTextWithPositions = (
 
     // 渲染各个片段
     return segments.map((segment, index) =>
-        segment.highlight ? (
-            <span key={index} className={Item.highlight}>
-                {segment.text}
-            </span>
-        ) : (
-            <Fragment key={index}>{segment.text}</Fragment>
-        )
+        segment.highlight ? <em key={index}>{segment.text}</em> : <Fragment key={index}>{segment.text}</Fragment>
     )
 }
 

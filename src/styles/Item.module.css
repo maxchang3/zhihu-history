@@ -56,6 +56,15 @@
   -webkit-line-clamp: 2;
 }
 
+.content em {
+  font-style: normal;
+  background-color: rgba(255, 230, 0, 0.4);
+  border-radius: 2px;
+  padding: 0 2px;
+  margin: 0 -2px;
+  font-weight: 500;
+}
+
 .answer::before,
 .article::before,
 .pin::before {
@@ -81,14 +90,6 @@
 .pin::before {
   content: "想法";
   color: #60a912;
-}
-
-.highlight {
-  background-color: rgba(255, 230, 0, 0.4);
-  border-radius: 2px;
-  padding: 0 2px;
-  margin: 0 -2px;
-  font-weight: 500;
 }
 
 .srOnly {
