@@ -3,6 +3,7 @@ import App from '@/App'
 import { trackHistory } from '@/utils/history'
 import { logger } from '@/utils/logger'
 import { registerMenuCommands } from '@/utils/menu'
+import { getPageType } from '@/utils/route'
 import ReactDOM from 'react-dom'
 
 console.log(
@@ -16,27 +17,30 @@ const mountApp = () => {
     const container = document.createElement('div')
     container.id = 'zh-history-root'
 
-    const target = (() => {
-        switch (location.pathname) {
-            case '/':
-            case '/follow':
-            case '/hot':
-            case '/column-square': {
-                return document.querySelector('.CreatorEntrance')?.parentElement
-            }
-            case '/search': {
-                return document.querySelector('.TopSearch')?.parentElement
-            }
-            default: {
-                if (location.pathname.startsWith('/topic')) {
-                    return document.querySelector('.NumberBoard')?.parentElement
-                }
-            }
+    const getMountPointSelector = () => {
+        const pageType = getPageType(location.pathname)
+        switch (pageType) {
+            case 'home':
+                return '.CreatorEntrance'
+            case 'search':
+                return '.TopSearch'
+            case 'topic':
+                return '.NumberBoard'
+            default:
+                return null
         }
-    })()
+    }
+    const selector = getMountPointSelector()
+
+    if (!selector) {
+        logger.log(`当前页面类型不支持挂载：${location.pathname}`)
+        return
+    }
+
+    const target = document.querySelector(selector)?.parentElement
 
     if (!target) {
-        logger.warn('未找到挂载点')
+        logger.warn(`未找到挂载点：${selector}`)
         return
     }
 

@@ -1,6 +1,7 @@
 import { GM_getValue, GM_setValue } from '$'
 import { logger } from '@/utils/logger'
 import { Result } from '@/utils/result'
+import { type PageType, getPageType } from '@/utils/route'
 
 // biome-ignore lint/suspicious/noExplicitAny: use for type guard
 function isIn<T>(values: readonly T[], x: any): x is T {
@@ -248,27 +249,37 @@ export const trackSearchHistory = () => {
 }
 
 /**
+ * 获取当前页面的内容选择器
+ */
+const getContentSelector = (pageType: Exclude<PageType, 'search'>) => {
+    switch (pageType) {
+        case 'home':
+            return '#TopstoryContent'
+        case 'topic':
+            return '#TopicMain'
+        default:
+            return null
+    }
+}
+
+/**
  * 监听点击事件，保存浏览历史
  */
 export const trackHistory = () => {
-    switch (window.location.pathname) {
-        case '/':
-        case '/follow':
-        case '/hot':
-        case '/column-square': {
-            // 默认选择整个 TopstoryContent，当 tab 切换时，内容会被替换
-            trackZopHistory('#TopstoryContent')
+    const pageType = getPageType(location.pathname)
+    if (!pageType) {
+        logger.error(`当前页面类型不支持：${location.pathname}`)
+        return
+    }
+    switch (pageType) {
+        case 'home':
+        case 'topic': {
+            const selector = getContentSelector(pageType)
+            if (selector) trackZopHistory(selector)
             break
         }
-        case '/search': {
+        case 'search':
             trackSearchHistory()
             break
-        }
-
-        default: {
-            if (location.pathname.startsWith('/topic')) {
-                trackZopHistory('#TopicMain')
-            }
-        }
     }
 }
