@@ -152,6 +152,7 @@ const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, str
         item.getAttribute('itemprop') ||
         // 如果没有 itemprop 属性，检查是否有关注按钮来确定是否为回答类型
         (item.querySelector('.FollowButton') ? 'answer' : undefined)
+
     if (!type) return Result.Err(`元素缺少 itemprop 属性：${item.outerHTML.substring(0, 100)}...`)
     if (!isIn(CONTENT_TYPE, type))
         return Result.Err(`元素 itemprop 值不合法："${type}"，支持的类型：${CONTENT_TYPE.join(', ')}`)
@@ -171,8 +172,11 @@ const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, str
     const itemId = url.split('/').pop()
     if (!itemId) return Result.Err(`无法从 URL 中提取 itemId：${url}`)
 
+    // 尝试获取一下作者名称
+    const authorName = item.querySelector<HTMLElement>('b[data-first-child]')?.textContent || ''
+
     return Result.Ok({
-        authorName: '', // 知乎重构界面后已经不需要显示存储作者名
+        authorName,
         type,
         itemId,
         url,
