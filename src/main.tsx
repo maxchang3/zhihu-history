@@ -1,8 +1,8 @@
 import { GM_info } from '$'
 import App from '@/App'
-import { trackHistory } from '@/utils/history'
+import { registerMenuCommands } from '@/features/menu'
+import { trackHistory } from '@/features/tracker'
 import { logger } from '@/utils/logger'
-import { registerMenuCommands } from '@/utils/menu'
 import ReactDOM from 'react-dom'
 
 console.log(

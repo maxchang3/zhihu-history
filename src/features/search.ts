@@ -1,4 +1,4 @@
-import type { ZhihuMetadata } from '@/utils/history'
+import type { ZhihuMetadata } from '@/types'
 
 /**
  * 使用 Intl.Segmenter 或空格分割进行分词
