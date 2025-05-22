@@ -1,16 +1,25 @@
 import { GM_getValue, GM_setValue } from '$'
 import { logger } from '@/utils/logger'
+import { Result } from '@/utils/result'
+import { type PageType, getPageType } from '@/utils/route'
+
+// biome-ignore lint/suspicious/noExplicitAny: use for type guard
+function isIn<T>(values: readonly T[], x: any): x is T {
+    return values.includes(x)
+}
+
+const CONTENT_TYPE = ['answer', 'article', 'pin'] as const
 
 /**
  * - `answer` - 回答
  * - `article` - 文章
  * - `pin` - 想法
  */
-type ZhihuContentType = 'answer' | 'article' | 'pin'
+type ZhihuContentType = (typeof CONTENT_TYPE)[number]
 
-export interface ZhihuContent {
+export interface ZhihuMetadata {
     authorName: string
-    itemId: number
+    itemId: string
     title: string
     type: ZhihuContentType
     url?: string
@@ -24,19 +33,19 @@ const HISTORY_LIMIT_KEY = 'HISTORY_LIMIT'
 export const DEFAULT_HISTORY_LIMIT = 20
 export const HISTORY_LIMIT = GM_getValue(HISTORY_LIMIT_KEY) || DEFAULT_HISTORY_LIMIT
 
-export const setHistoryLimit = (limit: string): [isOK: true, message: null] | [isOK: false, message: string] => {
+export const setHistoryLimit = (limit: string): Result<null, string> => {
     const numericLimit = Number(limit)
     if (!Number.isNaN(numericLimit) && numericLimit > 0) {
         GM_setValue(HISTORY_LIMIT_KEY, numericLimit)
-        return [true, null]
+        return Result.Ok(null)
     }
-    return [false, '输入无效，请输入一个正整数']
+    return Result.Err('输入无效，请输入一个正整数')
 }
 
-export const saveHistory = (item: ZhihuContent) => {
-    try {
+export const saveHistory = (item: ZhihuMetadata) =>
+    Result.try(() => {
         const raw = GM_getValue(STORAGE_KEY)
-        const historyItems: ZhihuContent[] = raw ? JSON.parse(raw) : []
+        const historyItems: ZhihuMetadata[] = raw ? JSON.parse(raw) : []
 
         // 检查是否存在重复项，如果有则删除旧的
         const existingIndex = historyItems.findIndex((i) => i.itemId === item.itemId)
@@ -51,16 +60,13 @@ export const saveHistory = (item: ZhihuContent) => {
         }
 
         GM_setValue(STORAGE_KEY, JSON.stringify(historyItems))
-    } catch (error) {
-        logger.error('保存浏览历史失败:', error)
-    }
-}
+    }).mapErr((error) => `保存浏览历史失败：${error}`)
 
 /**
  * 将旧的 localStorage 数据迁移到用户脚本管理器的存储中
  */
-const migrateToGMStorage = () => {
-    try {
+const migrateToGMStorage = () =>
+    Result.try(() => {
         logger.log('检测到旧的浏览历史数据，正在转换...')
         const raw = localStorage.getItem(STORAGE_KEY)
         if (raw) {
@@ -68,80 +74,173 @@ const migrateToGMStorage = () => {
             localStorage.removeItem(STORAGE_KEY)
         }
         logger.log('转换浏览历史数据成功')
-    } catch (error) {
-        logger.error('转换浏览历史失败:', error)
-    }
-}
+    })
 
-export const getHistory = (): ZhihuContent[] => {
-    try {
+/**
+ * 获取浏览历史
+ */
+export const getHistory = () =>
+    Result.try(() => {
         if (localStorage.getItem(STORAGE_KEY) !== null) {
-            migrateToGMStorage()
+            const migrationResult = migrateToGMStorage()
+            migrationResult.mapErr((error) => {
+                logger.error('历史记录转换失败：', error)
+            })
         }
         const raw = GM_getValue(STORAGE_KEY)
-        return raw ? JSON.parse(raw).reverse() : []
-    } catch (error) {
-        logger.error('获取浏览历史失败:', error)
-        return []
-    }
-}
+        return (raw ? JSON.parse(raw).reverse() : []) as ZhihuMetadata[]
+    }).match({
+        Ok: (history) => history,
+        Err: (error) => {
+            logger.error('获取浏览历史失败：', error)
+            return []
+        },
+    })
 
 /**
  * 清空浏览历史
  */
-export const clearHistory = () => {
-    try {
+export const clearHistory = (): Result<null, Error> =>
+    Result.try(() => {
         GM_setValue(STORAGE_KEY, null)
-    } catch (error) {
-        logger.error('清空浏览历史失败:', error)
-    }
-}
+    })
 
 /**
- * 从 DOM 元素中提取历史记录信息并保存
+ * 扩展元数据
  */
-const saveHistoryFromElement = (item: HTMLElement) => {
-    const zop = item.dataset.zop
-    if (!zop) {
-        logger.error('无法读取回答或文章信息', item.dataset)
-        return
+const extendMetadata = (item: HTMLElement, rawMetadata: ZhihuMetadata): ZhihuMetadata => {
+    rawMetadata.visitTime = Date.now()
+    const extractMetadata = (): string | undefined => {
+        const span = item.querySelector<HTMLSpanElement>('.RichText')
+        if (!span) return undefined
+        let text = span.innerText.trim()
+        /**
+         * 如果获取到的内容不包含作者名称，则手动添加作者前缀
+         * 这通常发生在回答正好被展开的情况下，此时获取的是不包括作者名的正文
+         */
+        if (!text.startsWith(rawMetadata.authorName)) text = `${rawMetadata.authorName}：${text}`
+        return text.length > 120 ? `${text.slice(0, 120)}...` : text
     }
-    try {
-        const data: ZhihuContent = JSON.parse(zop)
-        if (data.type === 'pin') {
-            const userLinkEl = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
-            if (userLinkEl) data.authorName = userLinkEl.innerText
-            data.url = `https://www.zhihu.com/pin/${data.itemId}`
-            const contentTextEl = item.querySelector<HTMLDivElement>(`.RichText`)?.innerText
-            if (contentTextEl) data.title = contentTextEl
-        } else {
-            const linkEl = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
-            if (linkEl) data.url = linkEl.href
-            const contentEl = item.querySelector<HTMLSpanElement>('.RichText')
-            if (contentEl) {
-                let contentText = contentEl.innerText
-                /**
-                 * 获取元素可能发现在内容展开后，此处是不包含作者名的，所以我们手工加上
-                 */
-                if (!contentText.startsWith(data.authorName)) {
-                    contentText = `${data.authorName}：${contentText}`
-                }
-                data.content = contentText.slice(0, 120) + '...'
-            }
+    switch (rawMetadata.type) {
+        case 'pin': {
+            const userLink = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
+            if (userLink) rawMetadata.authorName = userLink.innerText.trim()
+            rawMetadata.url = `https://www.zhihu.com/pin/${rawMetadata.itemId}`
+            break
         }
-        data.visitTime = Date.now()
-        saveHistory(data)
-    } catch (err) {
-        logger.error('解析历史记录失败:', err)
+
+        case 'article':
+        case 'answer': {
+            if (!rawMetadata.url) {
+                const linkEl = item.querySelector<HTMLAnchorElement>('.ContentItem-title a')
+                if (linkEl) rawMetadata.url = linkEl.href
+            }
+            rawMetadata.content = extractMetadata()
+            break
+        }
     }
+    return rawMetadata
+}
+
+const extractMetadataFromZop = (item: HTMLElement): Result<ZhihuMetadata, string> => {
+    const zop = item.dataset.zop
+    if (!zop) return Result.Err(`无法读取回答或文章信息：${JSON.stringify(item.dataset)}`)
+    return Result.try(() => JSON.parse(zop) as ZhihuMetadata).mapErr((err) => `解析数据失败：${err}`)
+}
+
+const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, string> => {
+    const truncateText = (text: string, maxLength = 120) => `${text.substring(0, maxLength)}...`
+    /**
+     * 如果有 `name` 属性，说明是热榜问题中的某一个回答，此处 `name` 为回答 ID
+     * 热榜的内容为一个问题对应多个答案。（所以类型一定是回答）
+     *   大概结构是：
+     *   ```html
+     *   <div class="HotLanding-contentItem">
+     *       <div class="ContentItem">
+     *          <div class="ContentItem-title">问题标题</div>
+     *       </div>
+     *       <div class="ContentItem AnswerItem" name="xxx1" >...</div>
+     *       <div class="ContentItem AnswerItem" name="xxx2" >...</div>
+     *   </div>
+     *   ```
+     */
+    const hotLandingId = item.getAttribute('name')
+    const type =
+        item.getAttribute('itemprop') ||
+        // 如果没有 `itemprop` 属性，检查是否有关注按钮，如果有的话，说明是单独的问题
+        (item.querySelector('.FollowButton') ? 'answer' : undefined)
+
+    if (!type) return Result.Err(`元素缺少 itemprop 属性：${truncateText(item.outerHTML)}`)
+    if (!isIn(CONTENT_TYPE, type))
+        return Result.Err(`元素 itemprop 值不合法："${type}"，支持的类型：${CONTENT_TYPE.join(', ')}`)
+
+    // 尝试获取一下作者名称
+    const authorName =
+        item.querySelector<HTMLElement>('b[data-first-child]')?.textContent || // 未展开的回答
+        item.querySelector<HTMLElement>('.AuthorInfo-name')?.textContent || // 已经展开的回答
+        ''
+    // 如果点击的是热榜中的某一个子回答，则需要向上查找父元素 `.HotLanding-contentItem`
+    // 从而获取问题标题和链接，然后把问题链接和回答 ID 拼接成完整的 URL。
+    if (hotLandingId) {
+        const newItem = item.closest<HTMLElement>('.HotLanding-contentItem')
+        if (newItem) {
+            // biome-ignore lint/style/noParameterAssign: 此处需要修改 item 以简化处理逻辑
+            item = newItem
+        }
+    }
+
+    // 获取链接元素
+    const linkEl = item.querySelector<HTMLAnchorElement>('a')
+    if (!linkEl) return Result.Err(`元素缺少链接标签：${truncateText(item.outerHTML)}`)
+    const url = linkEl.href + (hotLandingId ? `/answer/${hotLandingId}` : '')
+
+    // 提取标题
+    const titleElement = item.querySelector<HTMLSpanElement>('.ContentItem-title')
+    if (!titleElement) return Result.Err(`元素缺少标题标签：${truncateText(item.outerHTML)}`)
+    const title = titleElement.innerText.trim()
+    if (!title) return Result.Err(`元素的标题内容为空`)
+
+    // 从 URL 中提取内容ID
+    const itemId = url.split('/').pop()
+    if (!itemId) return Result.Err(`无法从 URL 中提取 itemId：${url}`)
+
+    return Result.Ok({
+        authorName,
+        type,
+        itemId,
+        url,
+        title,
+    })
 }
 
 /**
- * 监听点击事件，保存浏览历史
+ * 通用函数，从 DOM 元素中提取和保存历史记录
  */
-export const trackHistory = () => {
-    // 选择整个 TopstoryContent，当 tab 切换时，内容会被替换
-    const container = document.querySelector('#TopstoryContent')
+const saveHistoryFromElement = (
+    item: HTMLElement,
+    extractMetadata: (item: HTMLElement) => Result<ZhihuMetadata, string>
+) =>
+    extractMetadata(item)
+        .map((data) => extendMetadata(item, data))
+        .andThen(saveHistory)
+
+/**
+ * 从 DOM 元素中提取历史记录信息并保存（对于首页推荐的元素）
+ */
+export const saveHistoryFromHomePageElement = (item: HTMLElement) =>
+    saveHistoryFromElement(item, extractMetadataFromZop)
+
+/**
+ * 从 DOM 元素中提取历史记录信息并保存（对于搜索结果的元素）
+ */
+export const saveHistoryFromSearchElement = (item: HTMLElement) =>
+    saveHistoryFromElement(item, extractMetadataFromSearch)
+
+/**
+ * 记录拥有 zop 属性页面的点击事件
+ */
+export const trackZopHistory = (selector: string) => {
+    const container = document.querySelector(selector)
 
     if (!container) {
         logger.error('未找到首页推荐容器')
@@ -152,6 +251,68 @@ export const trackHistory = () => {
         const target = e.target
         if (!(target instanceof HTMLElement)) return
         const item = target.closest<HTMLElement>('.ContentItem')
-        if (item) saveHistoryFromElement(item)
+        if (!item) return
+        saveHistoryFromHomePageElement(item).mapErr((err) => logger.error(err))
     })
+}
+
+export const trackSearchHistory = () => {
+    const params = new URLSearchParams(location.search)
+    if (params.get('type') !== 'content') return
+
+    const container = document.querySelector('.Search-container')
+
+    if (!container) {
+        logger.error('未找到搜索结果容器')
+        return
+    }
+
+    container.addEventListener('click', (e) => {
+        const target = e.target
+        if (!(target instanceof HTMLElement)) return
+        let item = target.closest<HTMLElement>('.ContentItem')
+        if (!item) return
+        if (item.dataset?.zaDetailViewPathModule === 'Content') {
+            // 如果我们获取到的 ContentItem 有这个属性值，说明他是热榜的问题，我们直接取第一个回答
+            const newItem = item.parentElement?.querySelectorAll<HTMLElement>('.ContentItem')[1]
+            if (newItem) item = newItem
+        }
+        saveHistoryFromSearchElement(item).mapErr((err) => logger.error(err))
+    })
+}
+
+/**
+ * 获取当前页面的内容选择器
+ */
+const getContentSelector = (pageType: Exclude<PageType, 'search'>) => {
+    switch (pageType) {
+        case 'home':
+            return '#TopstoryContent'
+        case 'topic':
+            return '#TopicMain'
+        default:
+            return null
+    }
+}
+
+/**
+ * 监听点击事件，保存浏览历史
+ */
+export const trackHistory = () => {
+    const pageType = getPageType(location.pathname)
+    if (!pageType) {
+        logger.error(`当前页面类型不支持：${location.pathname}`)
+        return
+    }
+    switch (pageType) {
+        case 'home':
+        case 'topic': {
+            const selector = getContentSelector(pageType)
+            if (selector) trackZopHistory(selector)
+            break
+        }
+        case 'search':
+            trackSearchHistory()
+            break
+    }
 }

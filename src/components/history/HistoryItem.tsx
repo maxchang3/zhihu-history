@@ -1,10 +1,10 @@
 import Item from '@/styles/Item.module.css'
-import type { ZhihuContent } from '@/utils/history'
+import type { ZhihuMetadata } from '@/utils/history'
 import type { SearchResult } from '@/utils/search'
 import { Fragment, forwardRef, useMemo } from 'react'
 
 interface HistoryItemProps {
-    item: ZhihuContent
+    item: ZhihuMetadata
     searchResult?: SearchResult
 }
 
@@ -90,7 +90,7 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ it
         answer: '问题',
         article: '文章',
         pin: '想法',
-    } satisfies Record<ZhihuContent['type'], string>
+    } satisfies Record<ZhihuMetadata['type'], string>
 
     // 处理访问时间
     const visitTime = !item.visitTime ? null : new Date(item.visitTime)

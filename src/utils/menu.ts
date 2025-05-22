@@ -6,8 +6,12 @@ type MenuCommand = Parameters<typeof GM_registerMenuCommand>
 const clearHistoryCommand: MenuCommand = [
     '🗑 清空浏览历史记录',
     () => {
-        clearHistory()
-        alert('清空浏览历史成功')
+        alert(
+            clearHistory().match({
+                Ok: () => '清空成功',
+                Err: (error) => `清空失败: ${error}`,
+            })
+        )
     },
 ]
 
@@ -16,12 +20,12 @@ const setHistoryLimitCommand: MenuCommand = [
     () => {
         const input = prompt(`请输入新的历史记录最大数量（默认 ${DEFAULT_HISTORY_LIMIT}）`)
         if (!input) return
-        const [isOK, message] = setHistoryLimit(input)
-        if (isOK) {
-            alert('设置成功')
-        } else {
-            alert(message)
-        }
+        alert(
+            setHistoryLimit(input).match({
+                Ok: () => '设置成功',
+                Err: (error) => `设置失败: ${error}`,
+            })
+        )
     },
 ]
 
