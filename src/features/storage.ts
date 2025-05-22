@@ -38,6 +38,43 @@ export const saveHistory = (item: ZhihuMetadata) =>
         GM_setValue(STORAGE_KEY, JSON.stringify(historyItems))
     }).mapErr((error) => `保存浏览历史失败：${error}`)
 
+export const importHistory = (history: string, merge = false) => {
+    const parsedHistory = Result.try(() => JSON.parse(history) as ZhihuMetadata[])
+        .unwrapOr([])
+        .reverse()
+
+    if (!Array.isArray(parsedHistory) || parsedHistory.length === 0) {
+        return Result.Err('导入的历史记录格式不正确或为空数组')
+    }
+
+    let historyItems: ZhihuMetadata[] = getHistory(false)
+    let mergeCount = 0
+    if (merge) {
+        parsedHistory.forEach((item) => {
+            const existingIndex = historyItems.findIndex((i) => i.itemId === item.itemId)
+            if (existingIndex !== -1) {
+                historyItems.splice(existingIndex, 1)
+                mergeCount++
+            }
+            historyItems.push(item)
+        })
+    } else {
+        historyItems = parsedHistory
+    }
+
+    if (historyItems.length > HISTORY_LIMIT) {
+        historyItems.splice(0, historyItems.length - HISTORY_LIMIT)
+    }
+
+    historyItems.sort((a, b) => (a.visitTime || 0) - (b.visitTime || 0))
+
+    GM_setValue(STORAGE_KEY, JSON.stringify(historyItems))
+
+    return Result.Ok(
+        `成功导入 ${parsedHistory.length} 条历史记录` + (mergeCount > 0 ? `，合并了 ${mergeCount} 条重复记录` : '')
+    )
+}
+
 /**
  * 将旧的 localStorage 数据迁移到用户脚本管理器的存储中
  */
@@ -55,7 +92,7 @@ const migrateToGMStorage = () =>
 /**
  * 获取浏览历史
  */
-export const getHistory = () =>
+export const getHistory = (reverse = true) =>
     Result.try(() => {
         if (localStorage.getItem(STORAGE_KEY) !== null) {
             const migrationResult = migrateToGMStorage()
@@ -64,7 +101,7 @@ export const getHistory = () =>
             })
         }
         const raw = GM_getValue(STORAGE_KEY)
-        return (raw ? JSON.parse(raw).reverse() : []) as ZhihuMetadata[]
+        return (raw ? (reverse ? JSON.parse(raw).reverse() : JSON.parse(raw)) : []) as ZhihuMetadata[]
     }).match({
         Ok: (history) => history,
         Err: (error) => {

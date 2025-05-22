@@ -37,6 +37,10 @@ export class Result<T, E> {
         throw new Error('Tried to unwrapErr Ok: ' + JSON.stringify(this.inner.value))
     }
 
+    unwrapOr(defaultValue: T): T {
+        return this.inner.ok ? this.inner.value : defaultValue
+    }
+
     map<U>(fn: (val: T) => U): Result<U, E> {
         return this.inner.ok ? Result.Ok(fn(this.inner.value)) : Result.Err(this.inner.error)
     }
