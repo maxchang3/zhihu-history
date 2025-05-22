@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1
+### Features
+
+- 支持导入和导出历史记录
+- 记录快捷键 <kbd>o</kbd> 打开的内容
+
 ## 1.2.0
 ### Features
 
