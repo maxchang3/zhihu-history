@@ -30,6 +30,7 @@ const mountApp = () => {
                 return null
         }
     }
+
     const selector = getMountPointSelector()
 
     if (!selector) {
