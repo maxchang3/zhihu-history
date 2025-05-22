@@ -59,7 +59,7 @@ export const saveHistory = (item: ZhihuMetadata) =>
         }
 
         GM_setValue(STORAGE_KEY, JSON.stringify(historyItems))
-    })
+    }).mapErr((error) => `保存浏览历史失败：${error}`)
 
 /**
  * 将旧的 localStorage 数据迁移到用户脚本管理器的存储中
@@ -144,9 +144,7 @@ const extendMetadata = (item: HTMLElement, rawMetadata: ZhihuMetadata): ZhihuMet
 const extractMetadataFromZop = (item: HTMLElement): Result<ZhihuMetadata, string> => {
     const zop = item.dataset.zop
     if (!zop) return Result.Err(`无法读取回答或文章信息：${JSON.stringify(item.dataset)}`)
-    return Result.try(() => JSON.parse(zop) as ZhihuMetadata).mapErr((err) =>
-        err instanceof Error ? err.message : String(err)
-    )
+    return Result.try(() => JSON.parse(zop) as ZhihuMetadata).mapErr((err) => `解析数据失败：${err}`)
 }
 
 const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, string> => {
@@ -188,13 +186,10 @@ const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, str
 const saveHistoryFromElement = (
     item: HTMLElement,
     extractMetadata: (item: HTMLElement) => Result<ZhihuMetadata, string>
-): Result<null, string> => {
-    return extractMetadata(item)
+) =>
+    extractMetadata(item)
         .map((data) => extendMetadata(item, data))
-        .andThen((metadata) =>
-            saveHistory(metadata).mapErr((err) => (err instanceof Error ? err.message : String(err)))
-        )
-}
+        .andThen(saveHistory)
 
 /**
  * 从 DOM 元素中提取历史记录信息并保存（对于首页推荐的元素）
