@@ -149,32 +149,60 @@ const extractMetadataFromZop = (item: HTMLElement): Result<ZhihuMetadata, string
 }
 
 const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, string> => {
+    const truncateText = (text: string, maxLength = 120) => `${text.substring(0, maxLength)}...`
+    /**
+     * 如果有 `name` 属性，说明是热榜问题中的某一个回答，此处 `name` 为回答 ID
+     * 热榜的内容为一个问题对应多个答案。（所以类型一定是回答）
+     *   大概结构是：
+     *   ```html
+     *   <div class="HotLanding-contentItem">
+     *       <div class="ContentItem">
+     *          <div class="ContentItem-title">问题标题</div>
+     *       </div>
+     *       <div class="ContentItem AnswerItem" name="xxx1" >...</div>
+     *       <div class="ContentItem AnswerItem" name="xxx2" >...</div>
+     *   </div>
+     *   ```
+     */
+    const hotLandingId = item.getAttribute('name')
     const type =
         item.getAttribute('itemprop') ||
-        // 如果没有 itemprop 属性，检查是否有关注按钮来确定是否为回答类型
+        // 如果没有 `itemprop` 属性，检查是否有关注按钮，如果有的话，说明是单独的问题
         (item.querySelector('.FollowButton') ? 'answer' : undefined)
 
-    if (!type) return Result.Err(`元素缺少 itemprop 属性：${item.outerHTML.substring(0, 100)}...`)
+    if (!type) return Result.Err(`元素缺少 itemprop 属性：${truncateText(item.outerHTML)}`)
     if (!isIn(CONTENT_TYPE, type))
         return Result.Err(`元素 itemprop 值不合法："${type}"，支持的类型：${CONTENT_TYPE.join(', ')}`)
 
+    // 尝试获取一下作者名称
+    const authorName =
+        item.querySelector<HTMLElement>('b[data-first-child]')?.textContent || // 未展开的回答
+        item.querySelector<HTMLElement>('.AuthorInfo-name')?.textContent || // 已经展开的回答
+        ''
+    // 如果点击的是热榜中的某一个子回答，则需要向上查找父元素 `.HotLanding-contentItem`
+    // 从而获取问题标题和链接，然后把问题链接和回答 ID 拼接成完整的 URL。
+    if (hotLandingId) {
+        const newItem = item.closest<HTMLElement>('.HotLanding-contentItem')
+        if (newItem) {
+            // biome-ignore lint/style/noParameterAssign: 此处需要修改 item 以简化处理逻辑
+            item = newItem
+        }
+    }
+
     // 获取链接元素
-    const linkEL = item.querySelector<HTMLAnchorElement>('a')
-    if (!linkEL) return Result.Err(`元素缺少链接标签：${item.outerHTML.substring(0, 100)}...`)
-    const url = linkEL.href
+    const linkEl = item.querySelector<HTMLAnchorElement>('a')
+    if (!linkEl) return Result.Err(`元素缺少链接标签：${truncateText(item.outerHTML)}`)
+    const url = linkEl.href + (hotLandingId ? `/answer/${hotLandingId}` : '')
 
     // 提取标题
     const titleElement = item.querySelector<HTMLSpanElement>('.ContentItem-title')
-    if (!titleElement) return Result.Err(`元素缺少标题标签：${item.outerHTML.substring(0, 100)}...`)
+    if (!titleElement) return Result.Err(`元素缺少标题标签：${truncateText(item.outerHTML)}`)
     const title = titleElement.innerText.trim()
     if (!title) return Result.Err(`元素的标题内容为空`)
 
     // 从 URL 中提取内容ID
     const itemId = url.split('/').pop()
     if (!itemId) return Result.Err(`无法从 URL 中提取 itemId：${url}`)
-
-    // 尝试获取一下作者名称
-    const authorName = item.querySelector<HTMLElement>('b[data-first-child]')?.textContent || ''
 
     return Result.Ok({
         authorName,
@@ -242,8 +270,13 @@ export const trackSearchHistory = () => {
     container.addEventListener('click', (e) => {
         const target = e.target
         if (!(target instanceof HTMLElement)) return
-        const item = target.closest<HTMLElement>('.ContentItem')
+        let item = target.closest<HTMLElement>('.ContentItem')
         if (!item) return
+        if (item.dataset?.zaDetailViewPathModule === 'Content') {
+            // 如果我们获取到的 ContentItem 有这个属性值，说明他是热榜的问题，我们直接取第一个回答
+            const newItem = item.parentElement?.querySelectorAll<HTMLElement>('.ContentItem')[1]
+            if (newItem) item = newItem
+        }
         saveHistoryFromSearchElement(item).mapErr((err) => logger.error(err))
     })
 }
