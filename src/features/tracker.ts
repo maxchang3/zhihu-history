@@ -144,19 +144,30 @@ export const saveHistoryFromSearchElement = (item: HTMLElement) =>
  * 记录拥有 zop 属性页面的点击事件
  */
 export const trackZopHistory = (selector: string) => {
-    const container = document.querySelector(selector)
+    const container = document.querySelector<HTMLDivElement>(selector)
 
     if (!container) {
         logger.error('未找到首页推荐容器')
         return
     }
 
+    const handleContentItem = (getItem: () => HTMLElement | null) => {
+        const item = getItem()
+        if (!item) return
+        saveHistoryFromHomePageElement(item).mapErr((err) => logger.error(err))
+    }
+
     container.addEventListener('click', (e) => {
         const target = e.target
         if (!(target instanceof HTMLElement)) return
-        const item = target.closest<HTMLElement>('.ContentItem')
-        if (!item) return
-        saveHistoryFromHomePageElement(item).mapErr((err) => logger.error(err))
+        handleContentItem(() => target.closest<HTMLElement>('.ContentItem'))
+    })
+
+    container.addEventListener('keydown', (e) => {
+        if (e.key !== 'o') return
+        const target = e.target
+        if (!(target instanceof HTMLElement)) return
+        handleContentItem(() => target.querySelector<HTMLElement>('.ContentItem'))
     })
 }
 
@@ -164,24 +175,37 @@ export const trackSearchHistory = () => {
     const params = new URLSearchParams(location.search)
     if (params.get('type') !== 'content') return
 
-    const container = document.querySelector('.Search-container')
+    const container = document.querySelector<HTMLDivElement>('.Search-container')
 
     if (!container) {
         logger.error('未找到搜索结果容器')
         return
     }
 
-    container.addEventListener('click', (e) => {
-        const target = e.target
-        if (!(target instanceof HTMLElement)) return
-        let item = target.closest<HTMLElement>('.ContentItem')
+    const handleContentItem = (getItem: () => HTMLElement | null) => {
+        let item = getItem()
         if (!item) return
+
         if (item.dataset?.zaDetailViewPathModule === 'Content') {
             // 如果我们获取到的 ContentItem 有这个属性值，说明他是热榜的问题，我们直接取第一个回答
             const newItem = item.parentElement?.querySelectorAll<HTMLElement>('.ContentItem')[1]
             if (newItem) item = newItem
         }
+
         saveHistoryFromSearchElement(item).mapErr((err) => logger.error(err))
+    }
+
+    container.addEventListener('click', (e) => {
+        const target = e.target
+        if (!(target instanceof HTMLElement)) return
+        handleContentItem(() => target.closest<HTMLElement>('.ContentItem'))
+    })
+
+    container.addEventListener('keydown', (e) => {
+        if (e.key !== 'o') return
+        const target = e.target
+        if (!(target instanceof HTMLElement)) return
+        handleContentItem(() => target.querySelector<HTMLElement>('.ContentItem'))
     })
 }
 
