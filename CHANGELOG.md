@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2
+### Features
+
+- 支持深色模式
+
 ## 1.2.1
 ### Features
 
