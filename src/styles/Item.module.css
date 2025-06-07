@@ -1,6 +1,6 @@
 .item {
   padding: var(--spacing-md) 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--shadow-color);
   display: flex;
   flex-direction: column;
 }

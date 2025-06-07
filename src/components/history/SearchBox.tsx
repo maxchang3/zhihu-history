@@ -25,6 +25,7 @@ export const SearchBox: FC<SearchBoxProps> = ({ searchTerm, onSearchChange, plac
                 value={searchTerm}
                 onChange={handleChange}
                 aria-label={placeholder}
+                style={{ backgroundColor: 'transparent' }}
             />
             {searchTerm && (
                 <button type="button" className={Search.clearButton} onClick={clearSearch} aria-label="清除搜索">

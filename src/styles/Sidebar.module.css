@@ -1,5 +1,5 @@
 .historyCard {
-  background: #fff;
+  background: var(--bg);
   border-radius: var(--border-radius-sm);
   box-shadow: 0 1px 3px var(--shadow-color);
   margin-bottom: 10px;

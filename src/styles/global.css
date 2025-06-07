@@ -1,4 +1,5 @@
 :root {
+  --bg: white;
   --primary-color: rgb(5, 109, 232);
   --primary-light: rgba(5, 109, 232, 0.5);
   --primary-bg: rgba(33, 150, 243, 0.2);
@@ -14,4 +15,15 @@
   --spacing-xl: 25px;
   --font-size-sm: 13px;
   --font-size-md: 14px;
+}
+
+[data-theme="dark"] {
+  --bg: #191b1f;
+  --primary-color: rgb(79, 195, 247);
+  --primary-light: rgba(79, 195, 247, 0.5);
+  --primary-bg: rgba(79, 195, 247, 0.2);
+  --text-color: #e0e0e0;
+  --text-secondary: #b0bec5;
+  --shadow-color: hsla(0, 0%, 65%, 0.2);
+  --backdrop-color: hsla(0, 0%, 7%, 0.85);
 }
