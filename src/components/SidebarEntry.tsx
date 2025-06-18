@@ -1,6 +1,6 @@
 import { type FC, useEffect, useState } from 'react'
 import { HistoryViewer } from '@/components/history'
-import styles from '@/styles//Sidebar.module.css'
+import styles from '@/styles/Sidebar.module.css'
 
 export const SidebarEntry: FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
