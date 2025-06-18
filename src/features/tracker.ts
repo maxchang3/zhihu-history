@@ -1,7 +1,7 @@
 import { CONTENT_TYPE, type ZhihuMetadata } from '@/types'
 import { logger } from '@/utils/logger'
 import { Result } from '@/utils/result'
-import { type PageType, getPageType } from '@/utils/route'
+import { getPageType, type PageType } from '@/utils/route'
 import { saveHistory } from './storage'
 
 // biome-ignore lint/suspicious/noExplicitAny: use for type guard
@@ -87,10 +87,7 @@ const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, str
     // 从而获取问题标题和链接，然后把问题链接和回答 ID 拼接成完整的 URL。
     if (hotLandingId) {
         const newItem = item.closest<HTMLElement>('.HotLanding-contentItem')
-        if (newItem) {
-            // biome-ignore lint/style/noParameterAssign: 此处需要修改 item 以简化处理逻辑
-            item = newItem
-        }
+        if (newItem) item = newItem
     }
 
     // 获取链接元素

@@ -1,7 +1,7 @@
+import { Fragment, forwardRef, useMemo } from 'react'
 import type { SearchResult } from '@/features/search'
 import Item from '@/styles/Item.module.css'
 import type { ZhihuMetadata } from '@/types'
-import { Fragment, forwardRef, useMemo } from 'react'
 
 interface HistoryItemProps {
     item: ZhihuMetadata

@@ -1,5 +1,5 @@
-import Search from '@/styles/Search.module.css'
 import type { FC } from 'react'
+import Search from '@/styles/Search.module.css'
 
 interface SearchStatusProps {
     /**

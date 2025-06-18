@@ -1,6 +1,6 @@
+import { type FC, useEffect, useState } from 'react'
 import { HistoryViewer } from '@/components/history'
 import styles from '@/styles//Sidebar.module.css'
-import { type FC, useEffect, useState } from 'react'
 
 export const SidebarEntry: FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -24,7 +24,7 @@ export const SidebarEntry: FC = () => {
     }, [])
 
     return (
-        <div className={styles.historyCard} role="complementary">
+        <aside className={styles.historyCard}>
             <button
                 className={styles.historyButton}
                 onClick={() => setIsDialogOpen(true)}
@@ -35,6 +35,6 @@ export const SidebarEntry: FC = () => {
                 <span>历史记录</span>
             </button>
             <HistoryViewer isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} />
-        </div>
+        </aside>
     )
 }

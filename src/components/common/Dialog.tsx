@@ -1,6 +1,6 @@
-import styles from '@/styles/Dialog.module.css'
 import { type FC, type ReactNode, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
+import styles from '@/styles/Dialog.module.css'
 
 interface DialogProps {
     isOpen: boolean

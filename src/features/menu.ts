@@ -1,9 +1,9 @@
 import { GM_registerMenuCommand } from '$'
 import {
-    DEFAULT_HISTORY_LIMIT,
-    HISTORY_LIMIT,
     clearHistory,
+    DEFAULT_HISTORY_LIMIT,
     getHistory,
+    HISTORY_LIMIT,
     importHistory,
     setHistoryLimit,
 } from './storage'

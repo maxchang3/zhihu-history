@@ -1,9 +1,9 @@
 import { GM_info } from '$'
+import ReactDOM from 'react-dom'
 import App from '@/App'
 import { registerMenuCommands } from '@/features/menu'
 import { trackHistory } from '@/features/tracker'
 import { logger } from '@/utils/logger'
-import ReactDOM from 'react-dom'
 
 console.log(
     '%c知乎历史记录',
