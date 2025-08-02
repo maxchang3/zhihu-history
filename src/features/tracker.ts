@@ -2,6 +2,7 @@ import { CONTENT_TYPE, type ZhihuMetadata } from '@/types'
 import { logger } from '@/utils/logger'
 import { Result } from '@/utils/result'
 import { getPageType, type PageType } from '@/utils/route'
+import { truncateText } from '@/utils/text'
 import { saveHistory } from './storage'
 
 // biome-ignore lint/suspicious/noExplicitAny: use for type guard
@@ -23,13 +24,21 @@ const extendMetadata = (item: HTMLElement, rawMetadata: ZhihuMetadata): ZhihuMet
          * 这通常发生在回答正好被展开的情况下，此时获取的是不包括作者名的正文
          */
         if (!text.startsWith(rawMetadata.authorName)) text = `${rawMetadata.authorName}：${text}`
-        return text.length > 120 ? `${text.slice(0, 120)}...` : text
+        return truncateText(text)
+    }
+    const extractPinTitle = (): string => {
+        const sourceBlock = item?.parentElement?.previousElementSibling
+        const firstLine = sourceBlock?.querySelector('.FeedSource-firstline')
+        const titleText = firstLine?.textContent?.split('·')[0] ?? ''
+        return titleText.trim()
     }
     switch (rawMetadata.type) {
         case 'pin': {
             const userLink = item.closest('.Feed')?.querySelector<HTMLAnchorElement>('.UserLink-link')
             if (userLink) rawMetadata.authorName = userLink.innerText.trim()
             rawMetadata.url = `https://www.zhihu.com/pin/${rawMetadata.itemId}`
+            rawMetadata.title = extractPinTitle()
+            rawMetadata.content = item.querySelector('.RichText')?.textContent ?? ''
             break
         }
 
@@ -53,7 +62,6 @@ const extractMetadataFromZop = (item: HTMLElement): Result<ZhihuMetadata, string
 }
 
 const extractMetadataFromSearch = (item: HTMLElement): Result<ZhihuMetadata, string> => {
-    const truncateText = (text: string, maxLength = 120) => `${text.substring(0, maxLength)}...`
     /**
      * 如果有 `name` 属性，说明是热榜问题中的某一个回答，此处 `name` 为回答 ID
      * 热榜的内容为一个问题对应多个答案。（所以类型一定是回答）
