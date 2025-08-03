@@ -1,3 +1,16 @@
+> [!IMPORTANT]
+> 目前知乎官方已上线「最近浏览」功能，并支持**移动端历史记录的单向同步**。这意味着本脚本的使用场景或将逐渐消失。
+>
+> 如果您对本脚本提供的特有功能没有需求，可以无需安装此脚本。
+>
+> <img width="20%" src="https://github.com/user-attachments/assets/0051f43e-f405-4607-8964-b98d10005b07" />
+>
+> 接下来的可能方向：
+>
+> 1. 随着「最近浏览」功能日趋完善，脚本本身的存在意义可能不再。
+> 2. 目前情况下，「最近浏览」需要在单独页面查看，若仍未支持全局弹窗，可继续通过调用其 API，自定义渲染位置，实现全局呼出功能。
+> 3. 目前情况下，「最近浏览」不支持自定义上限（默认为 200 条），若仍存在历史记录条数限制，脚本可转向为“突破上限”的增强工具。
+
 <p align="center">
   <img src="https://github.com/user-attachments/assets/817d91da-4f26-40e0-8a1f-7905bfb8a199" width="50%" />
   <img src="https://github.com/user-attachments/assets/a6f2558d-87e0-4379-9a1f-ef0da5cb0b76" width="15%" />
