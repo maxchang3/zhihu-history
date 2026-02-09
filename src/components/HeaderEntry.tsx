@@ -27,7 +27,7 @@ export const HeaderEntry: FC = () => {
     return (
         <>
             <button
-                className="css-16zsfw9"
+                className="css-16zsfw9 css-1osshgk"
                 onClick={() => setIsDialogOpen(true)}
                 aria-label="历史记录"
                 id="history-button"
