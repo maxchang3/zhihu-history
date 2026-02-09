@@ -1,3 +1,88 @@
+# Project Overview
+
+This is a **browser userscript** that uses the **official Zhihu API** to view and manage a user's browsing history, including:
+
+* Answers
+* Articles
+* Posts, etc.
+* Search and bulk delete support
+
+The project is built with **React + TypeScript + Vite**, but **does not introduce any additional React runtime**. (**Reuses `React` and `ReactDOM` already loaded on Zhihu pages**.)
+
+## Development Conventions
+
+* **All changes must pass lint and typecheck**
+* Do not introduce new runtime dependencies (especially React-related)
+* Prefer reusing Zhihu's existing capabilities rather than reimplementing
+
+---
+
+## Development Commands
+
+### Install dependencies
+
+```bash
+pnpm install
+```
+
+### Development mode
+
+```bash
+pnpm dev
+```
+
+### Build
+
+```bash
+pnpm build
+```
+
+### Preview build output
+
+```bash
+pnpm preview
+```
+
+---
+
+## Code Quality
+
+### Lint
+
+```bash
+pnpm lint
+```
+
+### Auto-fix
+
+```bash
+pnpm lint:fix
+```
+
+### Type check
+
+```bash
+pnpm typecheck
+```
+
+> Before committing or releasing, ensure all checks pass.
+
+---
+
+## Maintenance and Release
+
+### Version bump
+
+```bash
+pnpm release
+```
+
+### Update dependencies
+
+```bash
+pnpm bump-deps
+```
+
 # Agentlens Integration
 
 This project uses **agentlens** for AI-optimized documentation.
