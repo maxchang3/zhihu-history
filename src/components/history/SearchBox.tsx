@@ -5,7 +5,6 @@ import Search from '@/styles/Search.module.css'
 export interface SearchBoxHandle {
     focus: () => void
     clear: () => void
-    select: () => void
 }
 
 interface SearchBoxProps {
@@ -46,9 +45,6 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
                 inputRef.current?.focus()
             },
             clear,
-            select: () => {
-                inputRef.current?.select()
-            },
         }),
         [clear]
     )
