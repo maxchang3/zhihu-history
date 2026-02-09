@@ -1,7 +1,7 @@
-import { GM_info } from '$'
 import ReactDOM from 'react-dom'
 import App from '@/App'
 import { logger } from '@/utils/logger'
+import { GM_info } from '$'
 
 console.log(
     '%c知乎历史记录',
