@@ -14,6 +14,8 @@ export const SidebarEntry: FC = () => {
                 target.isContentEditable ||
                 target.tagName === 'SELECT'
             if (event.key === 'h' && !isEditableTarget) {
+                event.preventDefault()
+                event.stopPropagation()
                 setIsDialogOpen((prev) => !prev)
             }
         }
