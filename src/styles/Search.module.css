@@ -56,6 +56,20 @@
   z-index: 1;
 }
 
+.bottomInfo {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  background-color: white;
+  margin-top: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  text-align: right;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  border-top: 1px solid #eee;
+}
+
 .emptyState {
   text-align: center;
   padding: var(--spacing-xl);

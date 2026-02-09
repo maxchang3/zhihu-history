@@ -18,7 +18,7 @@ interface SearchStatusProps {
 
 export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, loadedCount, matchedCount }) => {
     // 无历史记录情况
-    if (totalCount === 0) return <div className={Search.emptyState}>暂无浏览历史</div>
+    if (totalCount === 0) return <div className={Search.emptyState}>暂无最近浏览</div>
 
     // 有搜索词的情况
     if (matchedCount !== -1) {
@@ -26,15 +26,19 @@ export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, loadedCount, m
         if (matchedCount === 0) return <div className={Search.emptyState}>没有找到匹配的历史记录</div>
         // 有搜索结果
         const info = `找到 ${matchedCount} 条匹配结果`
-        const hint = loadedCount < totalCount ? `（仅搜索已加载的 ${loadedCount} 条历史记录）` : ''
+        const hint = loadedCount < totalCount ? `（仅搜索已加载的 ${loadedCount} 条）` : ''
         return (
-            <div className={Search.info}>
+            <div className={Search.bottomInfo}>
                 {info}
                 {hint}
             </div>
         )
     }
 
-    // 无搜索词时不显示状态
-    return null
+    // 无搜索词时显示已加载记录数和总记录数
+    return (
+        <div className={Search.bottomInfo}>
+            已加载 {loadedCount} 条 / 共 {totalCount} 条历史记录
+        </div>
+    )
 }

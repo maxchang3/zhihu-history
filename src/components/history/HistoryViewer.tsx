@@ -7,7 +7,7 @@ import Viewer from '@/styles/Viewer.module.css'
 import type { HistoryItemType } from '@/types'
 import { logger } from '@/utils/logger'
 import { HistoryItem } from './HistoryItem'
-import { SearchBox } from './SearchBox'
+import { SearchBox, type SearchBoxHandle } from './SearchBox'
 import { SearchStatus } from './SearchStatus'
 
 interface HistoryViewerProps {
@@ -17,6 +17,7 @@ interface HistoryViewerProps {
 
 export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     const [searchTerm, debouncedValue, setSearchTerm] = useDebouncedState('', 300)
+    const [isSearchVisible, setIsSearchVisible] = useState(false)
     const [historyItems, setHistoryItems] = useState<HistoryItemType[]>([])
     const [stats, setStats] = useState({ count: 0 })
     const [loading, setLoading] = useState(false)
@@ -27,10 +28,11 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isBatchMode, setIsBatchMode] = useState(false)
     const [hasMore, setHasMore] = useState(true)
+    const dialogTitleId = `dialog-title-${Math.random().toString(36).slice(2, 11)}`
 
     const firstItemRef = useRef<HTMLAnchorElement>(null)
     const bodyRef = useRef<HTMLDivElement>(null)
-    const searchInputRef = useRef<HTMLInputElement>(null)
+    const searchBoxRef = useRef<SearchBoxHandle>(null)
 
     const loadHistory = useCallback(async (offset = 0, isLoadMore = false) => {
         const currentLoadingState = isLoadMore ? setLoadingMore : setLoading
@@ -73,30 +75,38 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
         }
     }, [])
 
-    // 加载历史记录
+    // 加载历史记录和重置搜索状态
     useEffect(() => {
         if (isOpen) {
             loadHistory()
             loadStats()
+            setIsSearchVisible(false) // 每次打开对话框时重置搜索栏状态为关闭
+            setSearchTerm('') // 清空搜索内容
         }
-    }, [isOpen, loadHistory, loadStats])
+    }, [isOpen, loadHistory, loadStats, setSearchTerm])
 
-    // 添加 / 快捷键支持搜索聚焦
+    // 添加 / 快捷键支持搜索切换
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // 只有在对话框打开时才处理快捷键
             if (!isOpen) return
 
-            // 当按下 / 键且焦点不在搜索框上时，聚焦到搜索框
-            if (e.key === '/' && document.activeElement !== searchInputRef.current) {
+            // 当按下 / 键时
+            if (e.key === '/') {
                 e.preventDefault()
-                searchInputRef.current?.focus()
+                // 如果搜索框可见且焦点在搜索框上，清除搜索内容
+                if (isSearchVisible) {
+                    searchBoxRef.current?.clear()
+                } else {
+                    // 否则切换搜索框可见性
+                    setIsSearchVisible(true)
+                }
             }
         }
 
         document.addEventListener('keydown', handleKeyDown)
         return () => document.removeEventListener('keydown', handleKeyDown)
-    }, [isOpen])
+    }, [isOpen, isSearchVisible])
 
     // 切换项目选择状态
     const toggleItemSelect = (contentToken: string) => {
@@ -128,7 +138,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
 
     // 清空所有历史记录
     const handleClearHistory = async () => {
-        if (!window.confirm('确定要清空所有浏览历史吗？此操作不可恢复。')) {
+        if (!window.confirm('确定要清空所有最近浏览吗？此操作不可恢复。')) {
             return
         }
 
@@ -211,21 +221,37 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     }, [historyItems.length, loadHistory])
 
     return (
-        <Dialog
-            isOpen={isOpen}
-            onClose={onClose}
-            initialFocusRef={historyItems.length > 0 ? firstItemRef : searchInputRef}
-        >
+        <Dialog isOpen={isOpen} onClose={onClose} initialFocusRef={firstItemRef}>
             <header className={Viewer.header}>
-                {/** biome-ignore lint/nursery/useUniqueElementIds: no need */}
-                <h2 className={Viewer.title} id="dialog-title">
-                    浏览历史
+                <h2 className={Viewer.title} id={dialogTitleId}>
+                    最近浏览
                 </h2>
-                <SearchBox searchTerm={searchTerm} onSearchChange={setSearchTerm} ref={searchInputRef} />
+                <SearchBox
+                    ref={searchBoxRef}
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    isVisible={isSearchVisible}
+                />
                 {/* 顶部操作栏 */}
                 <div className={Viewer.topActions} role="toolbar" aria-label="历史记录操作">
                     {!isBatchMode ? (
                         <>
+                            <button
+                                type="button"
+                                className={Viewer.topButton}
+                                onClick={() => setIsSearchVisible(!isSearchVisible)}
+                                aria-label={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
+                                title={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" role="img">
+                                    <title>{isSearchVisible ? '关闭搜索' : '搜索历史记录'}</title>
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M10.218 11.632a5.5 5.5 0 1 1 1.414-1.414l2.075 2.075a1 1 0 0 1-1.414 1.414l-2.075-2.075ZM10.6 7.1a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                                        clip-rule="evenodd"
+                                    ></path>
+                                </svg>
+                            </button>
                             <button
                                 type="button"
                                 className={Viewer.topButton}
@@ -284,14 +310,9 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                 </div>
             </header>
             <div className={Viewer.body} ref={bodyRef}>
-                <SearchStatus
-                    totalCount={stats.count}
-                    loadedCount={historyItems.length}
-                    matchedCount={searchTerm ? matchedItems.size : -1}
-                />
                 {loading && <div className={Viewer.loading}>加载中...</div>}
                 {error && <div className={Viewer.error}>{error}</div>}
-                {!loading && !error && historyItems.length === 0 && <div className={Viewer.empty}>暂无浏览历史</div>}
+                {!loading && !error && historyItems.length === 0 && <div className={Viewer.empty}>暂无最近浏览</div>}
                 {!loading && !error && historyItems.length > 0 && (
                     <>
                         <ul className={Viewer.list}>
@@ -323,10 +344,20 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                                 加载更多
                             </button>
                         )}
-                        {!hasMore && !loadingMore && <div className={Viewer.noMore}>已加载全部历史记录</div>}
+                        {!hasMore && !loadingMore && !searchTerm && (
+                            <div className={Viewer.noMore}>已加载全部历史记录</div>
+                        )}
                     </>
                 )}
             </div>
+            {/* 底部信息条 */}
+            {historyItems.length > 0 && (
+                <SearchStatus
+                    totalCount={stats.count}
+                    loadedCount={historyItems.length}
+                    matchedCount={searchTerm ? matchedItems.size : -1}
+                />
+            )}
         </Dialog>
     )
 }
