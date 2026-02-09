@@ -92,13 +92,11 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
         } satisfies Record<HistoryItemType['data']['extra']['content_type'], string>
 
         // 处理访问时间
-        const visitTime = !item.data.extra.read_time ? null : new Date(item.data.extra.read_time * 1000)
-        const formattedVisitTime = !visitTime
-            ? null
-            : {
-                  short: formatTime(visitTime),
-                  full: visitTime.toLocaleString('zh-CN'),
-              }
+        const visitTime = new Date(item.data.extra.read_time * 1000)
+        const formattedVisitTime = {
+            short: formatTime(visitTime),
+            full: visitTime.toLocaleString('zh-CN'),
+        }
 
         // 高亮处理标题文本
         const highlightedTitle = useMemo(
@@ -111,12 +109,6 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
             if (!item.data.content?.summary) return null
             return highlightTextWithPositions(item.data.content.summary, searchResult?.matches?.content)
         }, [item.data.content?.summary, searchResult])
-
-        // 高亮处理作者名（仅在没有访问时间时显示）
-        const highlightedAuthorName = useMemo(() => {
-            if (formattedVisitTime || !searchResult) return null
-            return highlightTextWithPositions(item.data.content?.author_name || '', searchResult.matches?.authorName)
-        }, [item.data.content?.author_name, formattedVisitTime, searchResult])
 
         // 获取赞同和评论信息
         const metaText = useMemo(() => {
@@ -153,18 +145,13 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
                             <span className={`${Item.title} ${Item[item.data.extra.content_type]}`}>
                                 {highlightedTitle}
                             </span>
-                            <span className={Item.visitTime} title={formattedVisitTime?.full} aria-hidden tabIndex={-1}>
-                                {formattedVisitTime?.short ?? (highlightedAuthorName || item.data.content?.author_name)}
+                            <span className={Item.visitTime} title={formattedVisitTime.full} aria-hidden tabIndex={-1}>
+                                {formattedVisitTime.short}
                             </span>
                         </div>
-                        {!formattedVisitTime && (
-                            <span className={Item.srOnly}>作者：{item.data.content?.author_name}</span>
-                        )}
-                        {formattedVisitTime && (
-                            <span className={Item.srOnly}>
-                                浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
-                            </span>
-                        )}
+                        <span className={Item.srOnly}>
+                            浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
+                        </span>
                     </a>
                     {item.data.content?.summary && <p className={Item.content}>{highlightedContent}</p>}
 

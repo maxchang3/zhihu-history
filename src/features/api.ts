@@ -37,8 +37,23 @@ export const fetchHistory = async (offset = 0, limit = 20): Promise<Result<Histo
             throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
 
-        const data: ReadHistoryResponse = await response.json()
-        return data.data
+        const { data }: ReadHistoryResponse = await response.json()
+
+        // 预处理数据：格式化内容文本，添加作者名前缀
+        return data.map((item) => {
+            const { summary, author_name } = item.data.content ?? {}
+            if (!summary || !author_name) return item
+            return {
+                ...item,
+                data: {
+                    ...item.data,
+                    content: {
+                        ...item.data.content,
+                        summary: `${author_name}：${summary}`,
+                    },
+                },
+            }
+        })
     })
     return result.mapErr((error) => `获取历史记录失败：${error}`)
 }
