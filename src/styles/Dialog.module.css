@@ -29,7 +29,7 @@
   max-width: 800px;
   width: 80%;
   overflow: hidden;
-  user-select: text !important;
+  user-select: text;
 }
 
 .dialog::backdrop {

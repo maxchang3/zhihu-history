@@ -27,7 +27,7 @@ export const batchDeleteHistory = async (requestData: DeleteHistoryRequest): Pro
 }
 
 /**
- * 获取浏览历史
+ * 获取最近浏览
  */
 export const fetchHistory = async (offset = 0, limit = 20): Promise<Result<HistoryItemType[], string>> => {
     const result = await Result.tryAsync(async () => {
