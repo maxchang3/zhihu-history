@@ -1,1 +1,1 @@
-export * from './SidebarEntry'
+export * from './HeaderEntry'

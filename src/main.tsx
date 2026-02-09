@@ -12,7 +12,7 @@ const mountApp = () => {
     const container = document.createElement('div')
     container.id = 'zh-history-root'
 
-    const target = document.querySelector('a[aria-label="边栏锚点"]')?.parentElement
+    const target = document.querySelector('button[aria-label="通知"]')?.parentElement?.parentElement
 
     if (!target) {
         logger.warn('未找到挂载点。')
