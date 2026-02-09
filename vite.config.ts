@@ -29,6 +29,7 @@ export default defineConfig({
                     'https://www.zhihu.com/column-square*',
                     'https://www.zhihu.com/search?*',
                     'https://www.zhihu.com/topic/*',
+                    'https://www.zhihu.com/question/*/answer/*',
                 ],
                 license: 'MIT',
                 grant: ['unsafeWindow'],
