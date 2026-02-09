@@ -60,14 +60,14 @@
   padding: var(--spacing-sm) var(--spacing-lg);
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-  background-color: white;
+  background-color: var(--background-light);
   margin-top: var(--spacing-md);
   border-radius: var(--border-radius-sm);
   text-align: right;
   position: sticky;
   bottom: 0;
   z-index: 1;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--shadow-color);
 }
 
 .emptyState {
