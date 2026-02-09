@@ -1,4 +1,4 @@
-import type { ZhihuMetadata } from '@/types'
+import type { HistoryItemType } from '@/types'
 
 /**
  * 使用 Intl.Segmenter 或空格分割进行分词
@@ -49,21 +49,22 @@ const segmenter = createSegmenter()
  * 判断某一项是否匹配搜索关键词
  * 匹配规则：标题、内容或作者名中包含关键词
  */
-export const isItemMatch = (item: ZhihuMetadata, term: string): boolean => {
+export const isItemMatch = (item: HistoryItemType, term: string): boolean => {
     // 空搜索词总是匹配所有项
     if (!term) return true
 
     const lowerTerm = term.toLowerCase()
-    const { title, content, authorName } = item
+    const { title } = item.data.header
+    const { summary, author_name } = item.data.content || {}
 
     // 标题匹配
     if (title.toLowerCase().includes(lowerTerm)) return true
 
     // 内容匹配（如果有内容）
-    if (content?.toLowerCase().includes(lowerTerm)) return true
+    if (summary?.toLowerCase().includes(lowerTerm)) return true
 
     // 作者名匹配
-    return authorName.toLowerCase().includes(lowerTerm)
+    return author_name?.toLowerCase().includes(lowerTerm) || false
 }
 
 // 可搜索的字段类型
@@ -116,7 +117,7 @@ const findAllMatches = (text: string | undefined, searchTerm: string): MatchPosi
 /**
  * 对历史项进行搜索，返回匹配的项及匹配位置信息
  */
-export const searchItem = (items: ZhihuMetadata[], term: string): Map<number, SearchResult> => {
+export const searchItem = (items: HistoryItemType[], term: string): Map<number, SearchResult> => {
     // 快速返回：空关键词
     if (!term) return new Map()
 
@@ -146,10 +147,18 @@ export const searchItem = (items: ZhihuMetadata[], term: string): Map<number, Se
 
             // 处理各字段的匹配
             const fields: SearchableField[] = ['title', 'authorName']
-            if (item.content) fields.push('content')
+            if (item.data.content?.summary) fields.push('content')
 
             fields.forEach((field) => {
-                const text = item[field]
+                let text: string | undefined
+                if (field === 'authorName') {
+                    text = item.data.content?.author_name
+                } else if (field === 'content') {
+                    text = item.data.content?.summary
+                } else {
+                    text = item.data.header.title
+                }
+
                 const matches = findAllMatches(text, searchTerm)
 
                 if (matches.length > 0) {

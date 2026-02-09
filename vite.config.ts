@@ -18,7 +18,7 @@ export default defineConfig({
         monkey({
             entry: 'src/main.tsx',
             userscript: {
-                name: '知乎历史记录',
+                name: '知乎历史记录 - 全局面板',
                 author: 'Max Chang',
                 icon: 'https://static.zhihu.com/heifetz/favicon.ico',
                 namespace: 'https://maxchang.me',

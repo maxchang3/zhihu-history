@@ -25,3 +25,131 @@
   flex-direction: column;
   padding: 0 1.5em;
 }
+
+.loading {
+  text-align: center;
+  padding: 2em;
+  color: var(--text-secondary);
+}
+
+.error {
+  text-align: center;
+  padding: 2em;
+  color: #d63031;
+}
+
+.empty {
+  text-align: center;
+  padding: 2em;
+  color: var(--text-secondary);
+}
+
+/* 顶部操作栏 */
+.topActions {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  margin-top: var(--spacing-sm);
+}
+
+.topButton {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--border-radius-xs);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.topButton:hover:not(:disabled),
+.topButton:focus-visible:not(:disabled) {
+  background-color: var(--primary-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.topButton:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.topButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 底部操作栏 */
+.bottomActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.bottomButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--border-radius-xs);
+  transition: background-color 0.2s;
+}
+
+.bottomButton:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.bottomButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stat {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  margin-left: auto;
+}
+
+/* 加载更多按钮 */
+.loadMoreButton {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: var(--border-radius-xs);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: var(--spacing-md) auto;
+}
+
+.loadMoreButton:hover:not(:disabled) {
+  background-color: var(--primary-bg);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.loadMoreButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* 已加载全部历史记录 */
+.noMore {
+  text-align: center;
+  padding: 2em;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}

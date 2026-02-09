@@ -10,13 +10,30 @@ export class Result<T, E> {
         return new Result({ ok: false, error })
     }
 
+    private static handleResult<T, TT = T extends void ? null : T>(val: T): TT {
+        const okValue = val === undefined ? null : val
+        return okValue as TT
+    }
+
+    private static handleError(err: unknown): Error {
+        return err instanceof Error ? err : new Error(String(err))
+    }
+
     static try<T, TT = T extends void ? null : T>(fn: () => T): Result<TT, Error> {
         try {
             const val = fn()
-            const okValue = val === undefined ? null : val
-            return Result.Ok(okValue as TT)
+            return Result.Ok(Result.handleResult(val))
         } catch (err) {
-            return Result.Err(err instanceof Error ? err : new Error(String(err)))
+            return Result.Err(Result.handleError(err))
+        }
+    }
+
+    static async tryAsync<T, TT = T extends void ? null : T>(fn: () => Promise<T>): Promise<Result<TT, Error>> {
+        try {
+            const val = await fn()
+            return Result.Ok(Result.handleResult(val))
+        } catch (err) {
+            return Result.Err(Result.handleError(err))
         }
     }
     isOk() {

@@ -35,6 +35,8 @@ export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, initialFocu
         <dialog
             ref={dialogRef}
             className={`${styles.dialog} ${className}`}
+            aria-modal="true"
+            aria-labelledby="dialog-title"
             onClose={handleClose}
             onClick={(e) => {
                 if (e.target === dialogRef.current) {

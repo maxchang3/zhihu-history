@@ -1,11 +1,13 @@
 import { Fragment, forwardRef, useMemo } from 'react'
 import type { SearchResult } from '@/features/search'
 import Item from '@/styles/Item.module.css'
-import type { ZhihuMetadata } from '@/types'
+import type { HistoryItemType } from '@/types'
 
 interface HistoryItemProps {
-    item: ZhihuMetadata
+    item: HistoryItemType
     searchResult?: SearchResult
+    isSelected?: boolean
+    onToggleSelect?: () => void
 }
 
 /**
@@ -79,62 +81,97 @@ const highlightTextWithPositions = (
     )
 }
 
-export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(({ item, searchResult }, ref) => {
-    const contentTypeMap = {
-        answer: '问题',
-        article: '文章',
-        pin: '想法',
-    } satisfies Record<ZhihuMetadata['type'], string>
+export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
+    ({ item, searchResult, isSelected = false, onToggleSelect }, ref) => {
+        const contentTypeMap = {
+            answer: '问题',
+            article: '文章',
+            pin: '想法',
+            profile: '用户',
+            question: '问题',
+        } satisfies Record<HistoryItemType['data']['extra']['content_type'], string>
 
-    // 处理访问时间
-    const visitTime = !item.visitTime ? null : new Date(item.visitTime)
-    const formattedVisitTime = !visitTime
-        ? null
-        : {
-              short: formatTime(visitTime),
-              full: visitTime.toLocaleString('zh-CN'),
-          }
+        // 处理访问时间
+        const visitTime = !item.data.extra.read_time ? null : new Date(item.data.extra.read_time * 1000)
+        const formattedVisitTime = !visitTime
+            ? null
+            : {
+                  short: formatTime(visitTime),
+                  full: visitTime.toLocaleString('zh-CN'),
+              }
 
-    // 高亮处理标题文本
-    const highlightedTitle = useMemo(
-        () => highlightTextWithPositions(item.title, searchResult?.matches?.title),
-        [item.title, searchResult]
-    )
+        // 高亮处理标题文本
+        const highlightedTitle = useMemo(
+            () => highlightTextWithPositions(item.data.header.title, searchResult?.matches?.title),
+            [item.data.header.title, searchResult]
+        )
 
-    // 高亮处理内容文本（如果存在）
-    const highlightedContent = useMemo(() => {
-        if (!item.content) return null
-        return highlightTextWithPositions(item.content, searchResult?.matches?.content)
-    }, [item.content, searchResult])
+        // 高亮处理内容文本（如果存在）
+        const highlightedContent = useMemo(() => {
+            if (!item.data.content?.summary) return null
+            return highlightTextWithPositions(item.data.content.summary, searchResult?.matches?.content)
+        }, [item.data.content?.summary, searchResult])
 
-    // 高亮处理作者名（仅在没有访问时间时显示）
-    const highlightedAuthorName = useMemo(() => {
-        // 有访问时间或无搜索结果时不处理作者名
-        if (formattedVisitTime || !searchResult) return null
-        return highlightTextWithPositions(item.authorName, searchResult.matches?.authorName)
-    }, [item.authorName, formattedVisitTime, searchResult])
+        // 高亮处理作者名（仅在没有访问时间时显示）
+        const highlightedAuthorName = useMemo(() => {
+            if (formattedVisitTime || !searchResult) return null
+            return highlightTextWithPositions(item.data.content?.author_name || '', searchResult.matches?.authorName)
+        }, [item.data.content?.author_name, formattedVisitTime, searchResult])
 
-    return (
-        <li className={Item.item}>
-            <a href={item.url} className={Item.link} ref={ref}>
-                <span className={Item.srOnly}>{contentTypeMap[item.type]}</span>
-                <div className={Item.header}>
-                    <span className={`${Item.title} ${Item[item.type]}`}>{highlightedTitle}</span>
-                    <span className={Item.visitTime} title={formattedVisitTime?.full} aria-hidden tabIndex={-1}>
-                        {formattedVisitTime?.short ?? (highlightedAuthorName || item.authorName)}
-                    </span>
+        // 获取赞同和评论信息
+        const metaText = useMemo(() => {
+            if (item.data.matrix?.length) {
+                return item.data.matrix[0].data.text || ''
+            }
+            return null
+        }, [item.data.matrix])
+
+        return (
+            <li className={`${Item.item} ${isSelected ? Item.selected : ''}`}>
+                <div className={Item.contentWrapper}>
+                    <a href={item.data.action.url} className={Item.link} ref={ref} tabIndex={0}>
+                        <span className={Item.srOnly}>{contentTypeMap[item.data.extra.content_type]}</span>
+                        <div className={Item.header}>
+                            {/* 选择复选框 */}
+                            {onToggleSelect && (
+                                <input
+                                    type="checkbox"
+                                    className={Item.checkbox}
+                                    checked={isSelected}
+                                    onChange={onToggleSelect}
+                                    aria-label="选择"
+                                />
+                            )}
+                            {item.data.header.icon && (
+                                <img
+                                    src={item.data.header.icon}
+                                    alt={contentTypeMap[item.data.extra.content_type]}
+                                    className={Item.icon}
+                                    loading="lazy"
+                                />
+                            )}
+                            <span className={`${Item.title} ${Item[item.data.extra.content_type]}`}>
+                                {highlightedTitle}
+                            </span>
+                            <span className={Item.visitTime} title={formattedVisitTime?.full} aria-hidden tabIndex={-1}>
+                                {formattedVisitTime?.short ?? (highlightedAuthorName || item.data.content?.author_name)}
+                            </span>
+                        </div>
+                        {!formattedVisitTime && (
+                            <span className={Item.srOnly}>作者：{item.data.content?.author_name}</span>
+                        )}
+                        {formattedVisitTime && (
+                            <span className={Item.srOnly}>
+                                浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
+                            </span>
+                        )}
+                    </a>
+                    {item.data.content?.summary && <p className={Item.content}>{highlightedContent}</p>}
+
+                    {/* 底部操作栏 */}
+                    <div className={Item.meta}>{metaText && <span className={Item.metaText}>{metaText}</span>}</div>
                 </div>
-                {
-                    // 没有访问时间的是之前的历史记录，没有包含作者的 content，所以需要提示作者
-                    !formattedVisitTime && <span className={Item.srOnly}>作者：{item.authorName}</span>
-                }
-                {formattedVisitTime && (
-                    <span className={Item.srOnly}>
-                        浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
-                    </span>
-                )}
-            </a>
-            {item.content && <p className={Item.content}>{highlightedContent}</p>}
-        </li>
-    )
-})
+            </li>
+        )
+    }
+)
