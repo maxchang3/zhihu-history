@@ -28,7 +28,6 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isBatchMode, setIsBatchMode] = useState(false)
     const [hasMore, setHasMore] = useState(true)
-    const dialogTitleId = `dialog-title-${Math.random().toString(36).slice(2, 11)}`
 
     const firstItemRef = useRef<HTMLAnchorElement>(null)
     const bodyRef = useRef<HTMLDivElement>(null)
@@ -223,9 +222,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     return (
         <Dialog isOpen={isOpen} onClose={onClose} initialFocusRef={firstItemRef}>
             <header className={Viewer.header}>
-                <h2 className={Viewer.title} id={dialogTitleId}>
-                    最近浏览
-                </h2>
+                <h2 className={Viewer.title}>最近浏览</h2>
                 <SearchBox
                     ref={searchBoxRef}
                     searchTerm={searchTerm}
