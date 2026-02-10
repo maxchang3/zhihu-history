@@ -1,4 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.14/schema.json",
-  "extends": ["@maxchang/biome-config"]
+  "extends": ["@maxchang/biome-config"],
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  }
 }

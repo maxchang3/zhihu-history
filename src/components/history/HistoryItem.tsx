@@ -1,6 +1,5 @@
 import { Fragment, forwardRef, useMemo } from 'react'
 import type { SearchResult } from '@/features/search'
-import Item from '@/styles/Item.module.css'
 import type { HistoryItemType } from '@/types'
 
 interface HistoryItemProps {
@@ -119,16 +118,23 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
         }, [item.data.matrix])
 
         return (
-            <li className={`${Item.item} ${isSelected ? Item.selected : ''}`}>
-                <div className={Item.contentWrapper}>
-                    <a href={item.data.action.url} className={Item.link} ref={ref} tabIndex={0}>
-                        <span className={Item.srOnly}>{contentTypeMap[item.data.extra.content_type]}</span>
-                        <div className={Item.header}>
+            <li
+                className={`py-2 border-b-base flex flex-col items-start last:border-b-0 ${isSelected ? 'bg-highlight rounded' : ''}`}
+            >
+                <div className="flex-1 flex flex-col min-w-0 w-full">
+                    <a
+                        href={item.data.action.url}
+                        className="flex-1 text-primary decoration-none min-w-0 w-full hover:text-blue-600  focus:text-blue-600 dark:(hover:text-blue-400 focus:text-blue-400) transition"
+                        ref={ref}
+                        tabIndex={0}
+                    >
+                        <span className="srOnly">{contentTypeMap[item.data.extra.content_type]}</span>
+                        <div className="flex items-center w-full relative">
                             {/* 选择复选框 */}
                             {onToggleSelect && (
                                 <input
                                     type="checkbox"
-                                    className={Item.checkbox}
+                                    className="absolute left-[-1.6rem] cursor-pointer flex-shrink-0 w-3.5 h-3.5"
                                     checked={isSelected}
                                     onChange={onToggleSelect}
                                     aria-label="选择"
@@ -138,25 +144,36 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
                                 <img
                                     src={item.data.header.icon}
                                     alt={contentTypeMap[item.data.extra.content_type]}
-                                    className={Item.icon}
+                                    className="mr-1 w-4 h-4 object-contain flex-shrink-0 rounded"
                                     loading="lazy"
                                 />
                             )}
-                            <span className={`${Item.title} ${Item[item.data.extra.content_type]}`}>
+                            <span className="flex-1 font-medium transition-colors whitespace-nowrap overflow-hidden text-ellipsis min-w-0">
                                 {highlightedTitle}
                             </span>
-                            <span className={Item.visitTime} title={formattedVisitTime.full} aria-hidden tabIndex={-1}>
+                            <span
+                                className="text-secondary text-sm whitespace-nowrap flex-shrink-0"
+                                title={formattedVisitTime.full}
+                                aria-hidden
+                                tabIndex={-1}
+                            >
                                 {formattedVisitTime.short}
                             </span>
                         </div>
-                        <span className={Item.srOnly}>
+                        <span className="srOnly">
                             浏览于<time dateTime={formattedVisitTime.short}>{formattedVisitTime.short}</time>
                         </span>
                     </a>
-                    {item.data.content?.summary && <p className={Item.content}>{highlightedContent}</p>}
+                    {item.data.content?.summary && (
+                        <p className="text-secondary text-sm m-0 mt-1 overflow-hidden text-ellipsis break-words line-clamp-2">
+                            {highlightedContent}
+                        </p>
+                    )}
 
                     {/* 底部操作栏 */}
-                    <div className={Item.meta}>{metaText && <span className={Item.metaText}>{metaText}</span>}</div>
+                    <div className="mt-1 text-xs text-secondary pt-1">
+                        {metaText && <span className="text-inherit text-xs">{metaText}</span>}
+                    </div>
                 </div>
             </li>
         )

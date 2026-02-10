@@ -3,7 +3,6 @@ import { Dialog } from '@/components/common'
 import { batchDeleteHistory, clearHistory, fetchHistory, getHistoryStats } from '@/features/api'
 import { searchItem } from '@/features/search'
 import useDebouncedState from '@/hooks/useDebouncedState'
-import Viewer from '@/styles/Viewer.module.css'
 import type { HistoryItemType } from '@/types'
 import { logger } from '@/utils/logger'
 import { HistoryItem } from './HistoryItem'
@@ -221,8 +220,8 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
 
     return (
         <Dialog isOpen={isOpen} onClose={onClose} initialFocusRef={firstItemRef}>
-            <header className={Viewer.header}>
-                <h2 className={Viewer.title}>最近浏览</h2>
+            <header className="flex justify-between items-center mb-2 border-b-base pb-2">
+                <h2 className="m-0 text-lg text-primary">最近浏览</h2>
                 <SearchBox
                     ref={searchBoxRef}
                     searchTerm={searchTerm}
@@ -230,12 +229,12 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                     isVisible={isSearchVisible}
                 />
                 {/* 顶部操作栏 */}
-                <div className={Viewer.topActions} role="toolbar" aria-label="历史记录操作">
+                <div className="flex gap-1 items-center mt-1" role="toolbar" aria-label="历史记录操作">
                     {!isBatchMode ? (
                         <>
                             <button
                                 type="button"
-                                className={Viewer.topButton}
+                                className="btn"
                                 onClick={() => setIsSearchVisible(!isSearchVisible)}
                                 aria-label={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
                                 title={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
@@ -243,7 +242,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" role="img">
                                     <title>{isSearchVisible ? '关闭搜索' : '搜索历史记录'}</title>
                                     <path
-                                        fill-rule="evenodd"
+                                        fillRule="evenodd"
                                         d="M10.218 11.632a5.5 5.5 0 1 1 1.414-1.414l2.075 2.075a1 1 0 0 1-1.414 1.414l-2.075-2.075ZM10.6 7.1a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
                                         clip-rule="evenodd"
                                     ></path>
@@ -251,7 +250,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             </button>
                             <button
                                 type="button"
-                                className={Viewer.topButton}
+                                className="btn"
                                 onClick={toggleBatchMode}
                                 disabled={historyItems.length === 0}
                                 aria-label="批量删除"
@@ -261,7 +260,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             </button>
                             <button
                                 type="button"
-                                className={Viewer.topButton}
+                                className="btn"
                                 onClick={handleClearHistory}
                                 disabled={isClearing || historyItems.length === 0}
                                 aria-label="清空记录"
@@ -274,7 +273,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                         <>
                             <button
                                 type="button"
-                                className={Viewer.topButton}
+                                className="btn"
                                 onClick={toggleSelectAll}
                                 disabled={historyItems.length === 0}
                                 aria-label={selectedItems.size === historyItems.length ? '取消全选' : '全选'}
@@ -284,7 +283,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             </button>
                             <button
                                 type="button"
-                                className={Viewer.topButton}
+                                className="btn"
                                 onClick={handleBatchDelete}
                                 disabled={isDeleting || selectedItems.size === 0}
                                 aria-label={`删除选中的 ${selectedItems.size} 条记录`}
@@ -294,7 +293,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             </button>
                             <button
                                 type="button"
-                                className={Viewer.topButton}
+                                className="btn"
                                 onClick={toggleBatchMode}
                                 disabled={isDeleting}
                                 aria-label="取消批量删除"
@@ -306,13 +305,15 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                     )}
                 </div>
             </header>
-            <div className={Viewer.body} ref={bodyRef}>
-                {loading && <div className={Viewer.loading}>加载中...</div>}
-                {error && <div className={Viewer.error}>{error}</div>}
-                {!loading && !error && historyItems.length === 0 && <div className={Viewer.empty}>暂无最近浏览</div>}
+            <div className="max-h-[70vh] overflow-y-auto custom-scrollbar" ref={bodyRef}>
+                {loading && <div className="text-center py-8 text-secondary">加载中...</div>}
+                {error && <div className="text-center py-8 text-red-500 dark:text-red-400">{error}</div>}
+                {!loading && !error && historyItems.length === 0 && (
+                    <div className="text-center py-8 text-secondary">暂无最近浏览</div>
+                )}
                 {!loading && !error && historyItems.length > 0 && (
                     <>
-                        <ul className={Viewer.list}>
+                        <ul className="list-none m-0 flex flex-col p-0 sm:px-6">
                             {historyItems.map((item, i) => {
                                 const isMatch = !searchTerm || matchedItems.has(i)
                                 if (!isMatch) return null
@@ -335,14 +336,18 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                                 )
                             })}
                         </ul>
-                        {loadingMore && <div className={Viewer.loading}>加载更多...</div>}
+                        {loadingMore && (
+                            <div className="text-center py-8 text-gray-500 dark:text-gray-400">加载更多...</div>
+                        )}
                         {hasMore && !loadingMore && !searchTerm && (
-                            <button type="button" className={Viewer.loadMoreButton} onClick={handleLoadMore}>
+                            <button type="button" className="btn btn-lg mx-auto my-2" onClick={handleLoadMore}>
                                 加载更多
                             </button>
                         )}
                         {!hasMore && !loadingMore && !searchTerm && (
-                            <div className={Viewer.noMore}>已加载全部历史记录</div>
+                            <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+                                已加载全部历史记录
+                            </div>
                         )}
                     </>
                 )}

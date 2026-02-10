@@ -1,5 +1,4 @@
 import type { FC } from 'react'
-import Search from '@/styles/Search.module.css'
 
 interface SearchStatusProps {
     /**
@@ -18,17 +17,18 @@ interface SearchStatusProps {
 
 export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, loadedCount, matchedCount }) => {
     // 无历史记录情况
-    if (totalCount === 0) return <div className={Search.emptyState}>暂无最近浏览</div>
+    if (totalCount === 0) return <div className="text-center py-10 text-secondary text-sm italic">暂无最近浏览</div>
 
     // 有搜索词的情况
     if (matchedCount !== -1) {
         // 搜索无结果
-        if (matchedCount === 0) return <div className={Search.emptyState}>没有找到匹配的历史记录</div>
+        if (matchedCount === 0)
+            return <div className="text-center py-10 text-secondary text-sm italic">没有找到匹配的历史记录</div>
         // 有搜索结果
         const info = `找到 ${matchedCount} 条匹配结果`
         const hint = loadedCount < totalCount ? `（仅搜索已加载的 ${loadedCount} 条）` : ''
         return (
-            <div className={Search.bottomInfo}>
+            <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base">
                 {info}
                 {hint}
             </div>
@@ -37,7 +37,7 @@ export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, loadedCount, m
 
     // 无搜索词时显示已加载记录数和总记录数
     return (
-        <div className={Search.bottomInfo}>
+        <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base">
             已加载 {loadedCount} 条 / 共 {totalCount} 条历史记录
         </div>
     )

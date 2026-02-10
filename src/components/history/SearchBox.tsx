@@ -1,6 +1,5 @@
 import type { ChangeEvent, ForwardRefRenderFunction } from 'react'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
-import Search from '@/styles/Search.module.css'
 
 export interface SearchBoxHandle {
     focus: () => void
@@ -52,22 +51,23 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
     if (!isVisible) return null
 
     return (
-        <div className={Search.container}>
+        <div className="relative flex-1 mx-4 flex items-center">
             <input
                 ref={inputRef}
                 type="text"
                 placeholder={placeholder}
-                className={Search.input}
+                className={
+                    'flex-1 w-full p-1 rd text-sm border-base focus:(outline-none ring-2 ring-blue-500 dark:ring-blue-400 outline-none)'
+                }
                 value={searchTerm}
                 onChange={handleChange}
                 aria-label={placeholder}
-                style={{ backgroundColor: 'transparent' }}
             />
 
             {searchTerm && (
                 <button
                     type="button"
-                    className={Search.clearButton}
+                    className="absolute right-1 bg-transparent border-none cursor-pointer text-secondary text-xs p-1 flex items-center justify-center rounded-full transition-colors hover:(bg-gray-200 dark:bg-gray-700)"
                     onClick={clear}
                     aria-label="清除搜索"
                     tabIndex={-1}

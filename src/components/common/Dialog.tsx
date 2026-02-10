@@ -1,6 +1,5 @@
 import { type FC, type ReactNode, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
-import styles from '@/styles/Dialog.module.css'
 
 interface DialogProps {
     isOpen: boolean
@@ -34,7 +33,6 @@ export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, initialFocu
     return createPortal(
         <dialog
             ref={dialogRef}
-            className={`${styles.dialog} ${className}`}
             aria-modal="true"
             aria-labelledby="dialog-title"
             onClose={handleClose}
@@ -48,8 +46,9 @@ export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, initialFocu
                     handleClose()
                 }
             }}
+            className={`select-text! border-none shadow rounded-lg overflow-hidden max-w-3xl w-full sm:w-4/5 ${className}`}
         >
-            <div className={styles.content}>{children}</div>
+            <div className="p-2 outline-none">{children}</div>
         </dialog>,
         document.body
     )

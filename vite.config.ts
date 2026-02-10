@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
+import unocss from 'unocss/vite'
 import { defineConfig } from 'vite'
 import monkey from 'vite-plugin-monkey'
 
@@ -14,7 +15,9 @@ export default defineConfig({
         ],
     },
     plugins: [
+        // https://unocss.dev/integrations/vite#react
         react(),
+        unocss(),
         monkey({
             entry: 'src/main.tsx',
             userscript: {
