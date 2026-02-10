@@ -5,11 +5,11 @@ interface DialogProps {
     isOpen: boolean
     onClose: () => void
     children: ReactNode
-    initialFocusRef?: React.RefObject<HTMLElement>
     className?: string
+    onOpen?: () => void
 }
 
-export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, initialFocusRef, className = '' }) => {
+export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, className = '', onOpen }) => {
     const dialogRef = useRef<HTMLDialogElement>(null)
 
     useEffect(() => {
@@ -19,12 +19,14 @@ export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, initialFocu
         if (isOpen) {
             dialogElement.showModal()
             document.body.style.overflow = 'hidden'
-            initialFocusRef?.current?.focus()
+            if (onOpen) {
+                onOpen()
+            }
         } else if (dialogElement.open) {
             dialogElement.close()
             document.body.style.overflow = ''
         }
-    }, [isOpen, initialFocusRef])
+    }, [isOpen, onOpen])
 
     const handleClose = () => {
         onClose()

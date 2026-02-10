@@ -28,7 +28,6 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     const [isBatchMode, setIsBatchMode] = useState(false)
     const [hasMore, setHasMore] = useState(true)
 
-    const firstItemRef = useRef<HTMLAnchorElement>(null)
     const bodyRef = useRef<HTMLDivElement>(null)
     const searchBoxRef = useRef<SearchBoxHandle>(null)
 
@@ -80,6 +79,11 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
             loadStats()
             setIsSearchVisible(false) // 每次打开对话框时重置搜索栏状态为关闭
             setSearchTerm('') // 清空搜索内容
+
+            // 设置 bodyRef 的焦点
+            setTimeout(() => {
+                if (bodyRef.current) bodyRef.current.focus()
+            }, 0)
         }
     }, [isOpen, loadHistory, loadStats, setSearchTerm])
 
@@ -219,7 +223,18 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
     }, [historyItems.length, loadHistory])
 
     return (
-        <Dialog isOpen={isOpen} onClose={onClose} initialFocusRef={firstItemRef}>
+        <Dialog
+            isOpen={isOpen}
+            onClose={onClose}
+            onOpen={() => {
+                // 确保 DOM 已经渲染后再设置焦点
+                setTimeout(() => {
+                    if (bodyRef.current) {
+                        bodyRef.current.focus()
+                    }
+                }, 0)
+            }}
+        >
             <header className="flex justify-between items-center mb-2 border-b-base pb-2">
                 <h2 className="m-0 text-lg text-primary">最近浏览</h2>
                 <SearchBox
@@ -305,7 +320,8 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                     )}
                 </div>
             </header>
-            <div className="max-h-[70vh] overflow-y-auto custom-scrollbar" ref={bodyRef}>
+            {/** biome-ignore lint/a11y/noNoninteractiveTabindex: use for focus management */}
+            <div className="max-h-[70vh] overflow-y-auto custom-scrollbar" ref={bodyRef} tabIndex={0}>
                 {loading && <div className="text-center py-8 text-secondary">加载中...</div>}
                 {error && <div className="text-center py-8 text-red-500 dark:text-red-400">{error}</div>}
                 {!loading && !error && historyItems.length === 0 && (
@@ -325,7 +341,6 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                                         key={item.data.extra.content_token}
                                         item={item}
                                         searchResult={matchedItems.get(i)}
-                                        ref={i === 0 ? firstItemRef : null}
                                         isSelected={isSelected}
                                         onToggleSelect={
                                             isBatchMode

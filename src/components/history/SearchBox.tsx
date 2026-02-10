@@ -62,6 +62,7 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
                 value={searchTerm}
                 onChange={handleChange}
                 aria-label={placeholder}
+                tabIndex={-1}
             />
 
             {searchTerm && (
