@@ -1,10 +1,11 @@
-import { type FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { type FC, useCallback, useEffect, useRef, useState } from 'react'
 import { Dialog } from '@/components/common'
-import { batchDeleteHistory, clearHistory, fetchHistory, getHistoryStats } from '@/features/api'
-import { searchItem } from '@/features/search'
-import useDebouncedState from '@/hooks/useDebouncedState'
-import type { HistoryItemType } from '@/types'
-import { logger } from '@/utils/logger'
+import { useHistoryData } from '@/hooks/useHistoryData'
+import { useHistoryKeyHandlers } from '@/hooks/useHistoryKeyHandlers'
+import { useHistoryOperations } from '@/hooks/useHistoryOperations'
+import { useHistorySearch } from '@/hooks/useHistorySearch'
+import { useHistorySelection } from '@/hooks/useHistorySelection'
+import { useHistoryStats } from '@/hooks/useHistoryStats'
 import { HistoryItem } from './HistoryItem'
 import { SearchBox, type SearchBoxHandle } from './SearchBox'
 import { SearchStatus } from './SearchStatus'
@@ -15,192 +16,73 @@ interface HistoryViewerProps {
 }
 
 export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
-    const [searchTerm, debouncedValue, setSearchTerm] = useDebouncedState('', 300)
     const [isSearchVisible, setIsSearchVisible] = useState(false)
-    const [historyItems, setHistoryItems] = useState<HistoryItemType[]>([])
-    const [stats, setStats] = useState({ count: 0 })
-    const [loading, setLoading] = useState(false)
-    const [loadingMore, setLoadingMore] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
-    const [isClearing, setIsClearing] = useState(false)
-    const [isDeleting, setIsDeleting] = useState(false)
-    const [isBatchMode, setIsBatchMode] = useState(false)
-    const [hasMore, setHasMore] = useState(true)
 
     const bodyRef = useRef<HTMLDivElement>(null)
     const searchBoxRef = useRef<SearchBoxHandle>(null)
 
-    const loadHistory = useCallback(async (offset = 0, isLoadMore = false) => {
-        const currentLoadingState = isLoadMore ? setLoadingMore : setLoading
-        currentLoadingState(true)
-        setError(null)
-        try {
-            const result = await fetchHistory(offset, 50) // 每次加载 50 条
-            if (result.isOk()) {
-                const newItems = result.unwrap()
-                if (isLoadMore) {
-                    setHistoryItems((prev) => [...prev, ...newItems])
-                } else {
-                    setHistoryItems(newItems)
-                }
-                setHasMore(newItems.length === 50) // 如果返回的数量小于 50，说明没有更多数据了
-            } else {
-                const error = result.unwrapErr()
-                setError(error)
-                logger.error(error)
-            }
-        } catch (err) {
-            const errorMsg = err instanceof Error ? err.message : '加载历史记录失败'
-            setError(errorMsg)
-            logger.error(errorMsg)
-        } finally {
-            currentLoadingState(false)
-        }
-    }, [])
+    const {
+        historyItems,
+        loading,
+        loadingMore,
+        error,
+        hasMore,
+        loadHistory,
+        handleLoadMore,
+        clearHistoryItems,
+        setHistoryItems,
+    } = useHistoryData()
 
-    const loadStats = useCallback(async () => {
-        try {
-            const result = await getHistoryStats()
-            if (result.isOk()) {
-                setStats(result.unwrap())
-            } else {
-                logger.error(result.unwrapErr())
-            }
-        } catch (err) {
-            logger.error('获取统计信息失败:', err)
-        }
-    }, [])
+    const { stats, loadStats, updateStatsCount, setStats } = useHistoryStats()
+
+    const { selectedItems, isBatchMode, toggleItemSelect, toggleBatchMode, toggleSelectAll, clearSelection } =
+        useHistorySelection(historyItems)
+
+    const { isClearing, isDeleting, handleClearHistory, handleBatchDelete } = useHistoryOperations()
+
+    const { searchTerm, matchedItems, setSearchTerm } = useHistorySearch(historyItems)
+
+    // 键盘快捷键处理
+    useHistoryKeyHandlers(
+        isOpen,
+        isSearchVisible,
+        () => setIsSearchVisible(!isSearchVisible),
+        () => searchBoxRef.current?.clear(),
+        () => bodyRef.current?.focus(),
+        () => searchBoxRef.current?.focus()
+    )
 
     // 加载历史记录和重置搜索状态
     useEffect(() => {
         if (isOpen) {
             loadHistory()
             loadStats()
-            setIsSearchVisible(false) // 每次打开对话框时重置搜索栏状态为关闭
-            setSearchTerm('') // 清空搜索内容
+            setIsSearchVisible(false)
+            setSearchTerm('')
 
-            // 设置 bodyRef 的焦点
             setTimeout(() => {
                 if (bodyRef.current) bodyRef.current.focus()
             }, 0)
         }
     }, [isOpen, loadHistory, loadStats, setSearchTerm])
 
-    // 添加 / 快捷键支持搜索切换
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            // 只有在对话框打开时才处理快捷键
-            if (!isOpen) return
-
-            // 当按下 / 键时
-            if (e.key === '/') {
-                e.preventDefault()
-                // 如果搜索框可见且焦点在搜索框上，清除搜索内容
-                if (isSearchVisible) {
-                    searchBoxRef.current?.clear()
-                    setIsSearchVisible(false)
-                    bodyRef.current?.focus()
-                } else {
-                    // 否则切换搜索框可见性
-                    searchBoxRef.current?.focus()
-                    setIsSearchVisible(true)
-                }
-            }
-        }
-
-        document.addEventListener('keydown', handleKeyDown)
-        return () => document.removeEventListener('keydown', handleKeyDown)
-    }, [isOpen, isSearchVisible])
-
-    // 切换项目选择状态
-    const toggleItemSelect = (contentToken: string) => {
-        setSelectedItems((prev) => {
-            const newSelected = new Set(prev)
-            if (newSelected.has(contentToken)) {
-                newSelected.delete(contentToken)
-            } else {
-                newSelected.add(contentToken)
-            }
-            return newSelected
+    // 处理清空历史记录
+    const handleClear = useCallback(async () => {
+        await handleClearHistory(() => {
+            clearHistoryItems()
+            setStats((prev) => ({ ...prev, count: 0 }))
+            clearSelection()
         })
-    }
+    }, [handleClearHistory, clearHistoryItems, setStats, clearSelection])
 
-    // 切换批量删除模式
-    const toggleBatchMode = () => {
-        setIsBatchMode((prev) => !prev)
-        setSelectedItems(new Set())
-    }
-
-    // 全选/取消全选
-    const toggleSelectAll = () => {
-        if (selectedItems.size === historyItems.length) {
-            setSelectedItems(new Set())
-        } else {
-            setSelectedItems(new Set(historyItems.map((item) => item.data.extra.content_token)))
-        }
-    }
-
-    // 清空所有历史记录
-    const handleClearHistory = async () => {
-        if (!window.confirm('确定要清空所有最近浏览吗？此操作不可恢复。')) {
-            return
-        }
-
-        setIsClearing(true)
-        try {
-            const result = await clearHistory()
-            if (result.isOk()) {
-                setHistoryItems([])
-                setStats((prev) => ({ ...prev, count: 0 }))
-                setSelectedItems(new Set())
-            } else {
-                logger.error(result.unwrapErr())
-            }
-        } catch (err) {
-            logger.error('清空历史记录失败:', err)
-        } finally {
-            setIsClearing(false)
-        }
-    }
-
-    // 批量删除选中的历史记录
-    const handleBatchDelete = async () => {
-        if (selectedItems.size === 0) {
-            return
-        }
-
-        if (!window.confirm(`确定要删除选中的 ${selectedItems.size} 条历史记录吗？此操作不可恢复。`)) {
-            return
-        }
-
-        setIsDeleting(true)
-        try {
-            const itemsToDelete = historyItems.filter((item) => selectedItems.has(item.data.extra.content_token))
-            const result = await batchDeleteHistory({
-                pairs: itemsToDelete.map((item) => ({
-                    content_token: item.data.extra.content_token,
-                    content_type: item.data.extra.content_type,
-                })),
-                clear: false,
-            })
-
-            if (result.isOk()) {
-                // 删除成功后刷新列表
-                setHistoryItems((prev) => prev.filter((item) => !selectedItems.has(item.data.extra.content_token)))
-                setStats((prev) => ({ ...prev, count: Math.max(0, prev.count - selectedItems.size) }))
-                setSelectedItems(new Set())
-            } else {
-                logger.error('删除失败:', result.unwrapErr())
-            }
-        } catch (err) {
-            logger.error('批量删除失败:', err)
-        } finally {
-            setIsDeleting(false)
-        }
-    }
-
-    const matchedItems = useMemo(() => searchItem(historyItems, debouncedValue), [historyItems, debouncedValue])
+    // 处理批量删除
+    const handleBatchDeleteItems = useCallback(async () => {
+        await handleBatchDelete(historyItems, selectedItems, (deletedCount) => {
+            setHistoryItems((prev) => prev.filter((item) => !selectedItems.has(item.data.extra.content_token)))
+            updateStatsCount(-deletedCount)
+            clearSelection()
+        })
+    }, [handleBatchDelete, historyItems, selectedItems, setHistoryItems, updateStatsCount, clearSelection])
 
     // 滚动到底部自动加载更多
     const handleScroll = useCallback(() => {
@@ -219,11 +101,6 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
             return () => bodyElement.removeEventListener('scroll', handleScroll)
         }
     }, [handleScroll])
-
-    // 加载更多按钮点击事件
-    const handleLoadMore = useCallback(() => {
-        loadHistory(historyItems.length, true)
-    }, [historyItems.length, loadHistory])
 
     return (
         <Dialog
@@ -279,7 +156,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             <button
                                 type="button"
                                 className="btn"
-                                onClick={handleClearHistory}
+                                onClick={handleClear}
                                 disabled={isClearing || historyItems.length === 0}
                                 aria-label="清空记录"
                                 title="清空记录"
@@ -302,7 +179,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             <button
                                 type="button"
                                 className="btn"
-                                onClick={handleBatchDelete}
+                                onClick={handleBatchDeleteItems}
                                 disabled={isDeleting || selectedItems.size === 0}
                                 aria-label={`删除选中的 ${selectedItems.size} 条记录`}
                                 title={`删除选中的 ${selectedItems.size} 条记录`}
