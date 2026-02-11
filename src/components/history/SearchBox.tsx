@@ -62,7 +62,6 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
                 value={searchTerm}
                 onChange={handleChange}
                 aria-label={placeholder}
-                tabIndex={-1}
             />
 
             {searchTerm && (
@@ -71,7 +70,6 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
                     className="absolute right-1 bg-transparent border-none cursor-pointer text-secondary text-xs p-1 flex items-center justify-center rounded-full transition-colors hover:(bg-gray-200 dark:bg-gray-700)"
                     onClick={clear}
                     aria-label="清除搜索"
-                    tabIndex={-1}
                 >
                     ✕
                 </button>

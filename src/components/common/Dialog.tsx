@@ -11,21 +11,27 @@ interface DialogProps {
 
 export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, className = '', onOpen }) => {
     const dialogRef = useRef<HTMLDialogElement>(null)
+    const wasOpenRef = useRef(false)
 
     useEffect(() => {
         const dialogElement = dialogRef.current
         if (!dialogElement) return
 
-        if (isOpen) {
+        if (isOpen && !dialogElement.open) {
             dialogElement.showModal()
             document.body.style.overflow = 'hidden'
-            if (onOpen) {
-                onOpen()
-            }
-        } else if (dialogElement.open) {
+        }
+
+        if (isOpen && !wasOpenRef.current) {
+            onOpen?.()
+        }
+
+        if (!isOpen && dialogElement.open) {
             dialogElement.close()
             document.body.style.overflow = ''
         }
+
+        wasOpenRef.current = isOpen
     }, [isOpen, onOpen])
 
     const handleClose = () => {

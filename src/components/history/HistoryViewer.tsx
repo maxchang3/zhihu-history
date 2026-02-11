@@ -99,8 +99,11 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                 // 如果搜索框可见且焦点在搜索框上，清除搜索内容
                 if (isSearchVisible) {
                     searchBoxRef.current?.clear()
+                    setIsSearchVisible(false)
+                    bodyRef.current?.focus()
                 } else {
                     // 否则切换搜索框可见性
+                    searchBoxRef.current?.focus()
                     setIsSearchVisible(true)
                 }
             }
