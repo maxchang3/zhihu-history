@@ -9,3 +9,12 @@
   white-space: nowrap;
   border-width: 0;
 }
+
+dialog em {
+  font-style: normal;
+  background-color: rgba(255, 230, 0, 0.4);
+  border-radius: 2px;
+  padding: 0 2px;
+  margin: 0 -2px;
+  font-weight: 500;
+}
