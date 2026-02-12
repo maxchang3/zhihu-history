@@ -1,5 +1,5 @@
 import { type FC, useCallback, useEffect, useRef, useState } from 'react'
-import { Dialog } from '@/components/common'
+import { Dialog, SearchIcon } from '@/components/common'
 import { useHistoryData } from '@/hooks/useHistoryData'
 import { useHistoryKeyHandlers } from '@/hooks/useHistoryKeyHandlers'
 import { useHistoryOperations } from '@/hooks/useHistoryOperations'
@@ -136,14 +136,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                                 aria-label={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
                                 title={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
                             >
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" role="img">
-                                    <title>{isSearchVisible ? '关闭搜索' : '搜索历史记录'}</title>
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M10.218 11.632a5.5 5.5 0 1 1 1.414-1.414l2.075 2.075a1 1 0 0 1-1.414 1.414l-2.075-2.075ZM10.6 7.1a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-                                        clipRule="evenodd"
-                                    ></path>
-                                </svg>
+                                <SearchIcon title={isSearchVisible ? '关闭搜索' : '搜索历史记录'} />
                             </button>
                             <button
                                 type="button"
