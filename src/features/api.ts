@@ -29,7 +29,10 @@ export const batchDeleteHistory = async (requestData: DeleteHistoryRequest): Pro
 /**
  * 获取最近浏览
  */
-export const fetchHistory = async (offset = 0, limit = 20): Promise<Result<HistoryItemType[], string>> => {
+export const fetchHistory = async (
+    offset = 0,
+    limit = 20
+): Promise<Result<{ data: HistoryItemType[]; is_end: boolean }, string>> => {
     const result = await Result.tryAsync(async () => {
         const response = await fetch(`${API_BASE}/unify-consumption/read_history?offset=${offset}&limit=${limit}`)
 
@@ -37,10 +40,11 @@ export const fetchHistory = async (offset = 0, limit = 20): Promise<Result<Histo
             throw new Error(`HTTP ${response.status}: ${response.statusText}`)
         }
 
-        const { data }: ReadHistoryResponse = await response.json()
+        const fullResponse: ReadHistoryResponse = await response.json()
+        const { data, paging } = fullResponse
 
         // 预处理数据：格式化内容文本，添加作者名前缀
-        return data.map((item) => {
+        const processedData = data.map((item) => {
             const { summary, author_name } = item.data.content ?? {}
             if (!summary || !author_name) return item
             return {
@@ -54,6 +58,11 @@ export const fetchHistory = async (offset = 0, limit = 20): Promise<Result<Histo
                 },
             }
         })
+
+        return {
+            data: processedData,
+            is_end: paging.is_end,
+        }
     })
     return result.mapErr((error) => `获取历史记录失败：${error}`)
 }

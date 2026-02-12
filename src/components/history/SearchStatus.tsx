@@ -13,9 +13,23 @@ interface SearchStatusProps {
      * 匹配结果数量（ `-1` 表示没有搜索词）
      */
     matchedCount: number
+    /**
+     * 是否正在加载所有记录
+     */
+    isLoadingAll?: boolean
+    /**
+     * 加载所有历史记录的回调
+     */
+    onLoadAll?: () => void
 }
 
-export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, loadedCount, matchedCount }) => {
+export const SearchStatus: FC<SearchStatusProps> = ({
+    totalCount,
+    loadedCount,
+    matchedCount,
+    isLoadingAll,
+    onLoadAll,
+}) => {
     // 无历史记录情况
     if (totalCount === 0) return <div className="text-center py-10 text-secondary text-sm italic">暂无最近浏览</div>
 
@@ -36,6 +50,22 @@ export const SearchStatus: FC<SearchStatusProps> = ({ totalCount, loadedCount, m
     }
 
     // 无搜索词时显示已加载记录数和总记录数
+    if (loadedCount < totalCount && onLoadAll) {
+        return (
+            <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base">
+                已加载 {loadedCount} 条 / 共 {totalCount} 条历史记录
+                <button
+                    type="button"
+                    className="ml-2 text-secondary hover:text-primary"
+                    onClick={onLoadAll}
+                    disabled={isLoadingAll}
+                >
+                    {isLoadingAll ? '加载中...' : '全部加载'}
+                </button>
+            </div>
+        )
+    }
+
     return (
         <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base">
             已加载 {loadedCount} 条 / 共 {totalCount} 条历史记录

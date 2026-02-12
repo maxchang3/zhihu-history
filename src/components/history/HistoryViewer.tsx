@@ -25,9 +25,11 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
         historyItems,
         loading,
         loadingMore,
+        isLoadingAll,
         error,
         hasMore,
         loadHistory,
+        loadAllHistory,
         handleLoadMore,
         clearHistoryItems,
         setHistoryItems,
@@ -253,6 +255,8 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                     totalCount={stats.count}
                     loadedCount={historyItems.length}
                     matchedCount={searchTerm ? matchedItems.size : -1}
+                    isLoadingAll={isLoadingAll}
+                    onLoadAll={loadAllHistory}
                 />
             )}
         </Dialog>
