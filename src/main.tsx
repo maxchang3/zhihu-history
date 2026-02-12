@@ -12,8 +12,7 @@ const mountApp = () => {
     const container = document.createElement('div')
     container.id = 'zh-history-root'
 
-    const target = document.querySelector('button[href="https://www.zhihu.com/notifications"]')?.parentElement
-        ?.parentElement
+    const target = document.querySelector('.css-1vbrp2j')
 
     if (!target) {
         logger.warn('未找到挂载点。')
