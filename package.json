@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:min": "tsc && vite build --mode min",
     "preview": "vite preview",
     "lint": "biome check",
     "lint:fix": "biome check --write .",
