@@ -22,6 +22,7 @@ export default defineConfig({
             entry: 'src/main.tsx',
             userscript: {
                 name: '知乎历史记录 - 全局面板',
+                description: '使用全局面板浏览、搜索、管理你的知乎最近浏览。',
                 author: 'Max Chang',
                 icon: 'https://static.zhihu.com/heifetz/favicon.ico',
                 namespace: 'https://maxchang.me',
