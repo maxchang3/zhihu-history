@@ -37,26 +37,19 @@ export const SearchStatus: FC<SearchStatusProps> = ({
     const hasMoreRecords = loadedCount < totalCount
     const isNoMatch = matchedCount === 0
 
+    // 中间提示文案
+    let centerMessage: string | null = null
+
     if (isNoMatch) {
-        return (
-            <div className="flex flex-col items-center py-10">
-                <div className="text-secondary text-sm italic">没有找到匹配的历史记录</div>
-                {hasMoreRecords && onLoadAll && (
-                    <button
-                        type="button"
-                        className="mt-2 text-primary hover:underline text-sm"
-                        onClick={onLoadAll}
-                        disabled={isLoadingAll}
-                    >
-                        {isLoadingAll ? '正在搜索...' : `还有 ${totalCount - loadedCount} 条记录未加载，加载全部搜索`}
-                    </button>
-                )}
-            </div>
-        )
+        centerMessage = '没有找到匹配的历史记录'
+        if (hasMoreRecords) {
+            centerMessage += '（未加载全部）'
+        }
     }
 
+    // 底部信息
     let info: string
-    let hint: string = ''
+    let hint = ''
 
     if (matchedCount !== -1) {
         info = `已匹配 ${matchedCount} 条`
@@ -66,21 +59,25 @@ export const SearchStatus: FC<SearchStatusProps> = ({
     }
 
     return (
-        <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base bg-main">
-            <span>
-                {info}
-                {hint}
-            </span>
-            {hasMoreRecords && onLoadAll && (
-                <button
-                    type="button"
-                    className="ml-2 text-secondary hover:text-primary font-medium"
-                    onClick={onLoadAll}
-                    disabled={isLoadingAll}
-                >
-                    {isLoadingAll ? '加载中...' : '加载全部'}
-                </button>
+        <>
+            {centerMessage && (
+                <div className="flex items-center justify-center py-10 text-secondary text-sm italic">
+                    {centerMessage}
+                </div>
             )}
-        </div>
+
+            <div className="pt-2 text-(sm secondary) border-t-base rounded flex items-center justify-end gap-2">
+                <span>
+                    {info}
+                    {hint}
+                </span>
+
+                {hasMoreRecords && onLoadAll && (
+                    <button type="button" className="btn" onClick={onLoadAll} disabled={isLoadingAll}>
+                        {isLoadingAll ? '加载中...' : '加载全部'}
+                    </button>
+                )}
+            </div>
+        </>
     )
 }
