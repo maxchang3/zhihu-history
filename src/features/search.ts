@@ -56,7 +56,7 @@ export const isItemMatch = (item: HistoryItemType, term: string): boolean => {
 
     const lowerTerm = term.toLowerCase()
     const { title } = item.data.header
-    const { summary, author_name } = item.data.content || {}
+    const { summary } = item.data.content || {}
 
     // 标题匹配
     if (title.toLowerCase().includes(lowerTerm)) return true
@@ -64,12 +64,11 @@ export const isItemMatch = (item: HistoryItemType, term: string): boolean => {
     // 内容匹配（如果有内容）
     if (summary?.toLowerCase().includes(lowerTerm)) return true
 
-    // 作者名匹配
-    return author_name?.toLowerCase().includes(lowerTerm) || false
+    return false
 }
 
 // 可搜索的字段类型
-export type SearchableField = 'title' | 'content' | 'authorName'
+export type SearchableField = 'title' | 'content'
 
 /**
  * 匹配位置信息
@@ -147,14 +146,12 @@ export const searchItem = (items: HistoryItemType[], term: string): Map<number, 
             hasMatches = true
 
             // 处理各字段的匹配
-            const fields: SearchableField[] = ['title', 'authorName']
+            const fields: SearchableField[] = ['title']
             if (item.data.content?.summary) fields.push('content')
 
             fields.forEach((field) => {
                 let text: string | undefined
-                if (field === 'authorName') {
-                    text = item.data.content?.author_name
-                } else if (field === 'content') {
+                if (field === 'content') {
                     text = item.data.content?.summary
                 } else {
                     text = item.data.header.title
