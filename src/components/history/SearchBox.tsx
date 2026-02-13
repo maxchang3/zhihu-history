@@ -56,9 +56,7 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
                 ref={inputRef}
                 type="text"
                 placeholder={placeholder}
-                className={
-                    'flex-1 w-full p-1 rd text-sm border-base focus:(outline-none ring-2 ring-blue-500 dark:ring-blue-400 outline-none)'
-                }
+                className="flex-1 w-full p-1 rd text-sm border-base focus:(outline-none ring-2 ring-blue-500 dark:ring-blue-400)"
                 value={searchTerm}
                 onChange={handleChange}
                 aria-label={placeholder}
@@ -67,7 +65,7 @@ const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> =
             {searchTerm && (
                 <button
                     type="button"
-                    className="absolute right-1 bg-transparent border-none cursor-pointer text-secondary text-xs p-1 flex items-center justify-center rounded-full transition-colors hover:(bg-gray-200 dark:bg-gray-700)"
+                    className="absolute right-1 bg-transparent border-none cursor-pointer text-secondary text-xs p-1 flex items-center justify-center rounded-full transition-colors hover:bg-(gray-200 dark:gray-700)"
                     onClick={clear}
                     aria-label="清除搜索"
                 >

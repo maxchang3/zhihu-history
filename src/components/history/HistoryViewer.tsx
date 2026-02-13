@@ -198,7 +198,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
             {/** biome-ignore lint/a11y/noNoninteractiveTabindex: use for focus management */}
             <div className="max-h-[70vh] overflow-y-auto custom-scrollbar" ref={bodyRef} tabIndex={0}>
                 {loading && <div className="text-center py-8 text-secondary">加载中...</div>}
-                {error && <div className="text-center py-8 text-red-500 dark:text-red-400">{error}</div>}
+                {error && <div className="text-center py-8 text-red-(500 dark:400)">{error}</div>}
                 {!loading && !error && historyItems.length === 0 && (
                     <div className="text-center py-8 text-secondary">暂无最近浏览</div>
                 )}
@@ -226,18 +226,14 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                                 )
                             })}
                         </ul>
-                        {loadingMore && (
-                            <div className="text-center py-8 text-gray-500 dark:text-gray-400">加载更多...</div>
-                        )}
+                        {loadingMore && <div className="text-center py-8 text-gray-(500 dark:400)">加载更多...</div>}
                         {hasMore && !loadingMore && !searchTerm && (
                             <button type="button" className="btn btn-lg mx-auto my-2" onClick={handleLoadMore}>
                                 加载更多
                             </button>
                         )}
                         {!hasMore && !loadingMore && !searchTerm && (
-                            <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
-                                已加载全部历史记录
-                            </div>
+                            <div className="text-center py-8 text-gray-(500 dark:400) text-sm">已加载全部历史记录</div>
                         )}
                     </>
                 )}

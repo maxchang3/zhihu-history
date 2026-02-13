@@ -121,7 +121,7 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
             <li
                 className={`py-2 border-b-base flex flex-col items-start last:border-b-0 ${isSelected ? 'bg-highlight rounded' : ''}`}
             >
-                <div className="flex-1 flex flex-col min-w-0 w-full">
+                <div className="flex-(~ 1 col) min-w-0 w-full">
                     <a
                         href={item.data.action.url}
                         title={item.data.header.title}
