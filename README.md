@@ -29,7 +29,7 @@
 
 <sup>* 尽管如此，脚本的大小仍然不小（50KB 左右）</sup>
 
-<sup>** 尽管知乎的PC网页端没有提供深色模式，但你可以通过添加 `?theme=dark` 来启用它。如果想自动化这一过程，可以使用 [maxchang3/userscripts/zhihu-dark-mode](https://github.com/maxchang3/userscripts/blob/main/zhihu-dark-mode/zhihu-dark-mode.user.js)。不过，由于知乎的限制，自动切换时部分组件样式不会立即更新，需要刷新页面才能完全切换。</sup>
+<sup>** 尽管知乎的PC网页端没有提供深色模式，但你可以通过添加 `?theme=dark` 来启用它。如果想自动化这一过程，可以使用 [maxchang3/userscripts/zhihu-dark-mode](https://github.com/maxchang3/userscripts/blob/main/zhihu-dark-mode)。不过，由于知乎的限制，自动切换时部分组件样式不会立即更新，需要刷新页面才能完全切换。</sup>
 
 ## 快捷键
 
