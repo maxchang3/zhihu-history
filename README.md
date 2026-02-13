@@ -7,11 +7,11 @@
 
 > 此为原[知乎历史记录](https://github.com/maxchang3/zhihu-history/tree/legacy)的重构版本，该版本不支持本地存储，数据完全来自知乎 API。
 
-![Greasy Fork 总下载量](https://img.shields.io/greasyfork/dt/459852?style=flat-square&color=444)
+![Greasy Fork 总下载量](https://img.shields.io/greasyfork/dt/566203?style=flat-square&color=444)
 ![GitHub Release](https://img.shields.io/github/v/release/maxchang3/zhihu-history?style=flat-square&color=444)
-![](https://img.shields.io/badge/安装方式:-777)
-[![从 Greasy Fork 安装](https://img.shields.io/badge/Greasy_Fork-7D160D)](https://greasyfork.org/scripts/459852) [![从 Github Release 安装](https://img.shields.io/badge/Github_Release-3D7D3F)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history.user.js)
-
+ [![安装方式](https://img.shields.io/badge/安装方式-777?style=flat-square)](https://greasyfork.org/)
+[![Greasy Fork](https://img.shields.io/badge/Greasy_Fork-7D160D?style=flat-square)](https://greasyfork.org/scripts/566203)
+[![GitHub Release](https://img.shields.io/badge/GitHub_Release-3D7D3F?style=flat-square)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history.user.js)
 
 > 刷知乎网页版时，最痛苦的事情可能就是：你正在看一个回答时，因为意外刷新了，接着，你就再也找不到它了。🤮
 > 
