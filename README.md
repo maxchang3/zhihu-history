@@ -3,7 +3,9 @@
   <img src="https://github.com/user-attachments/assets/a6f2558d-87e0-4379-9a1f-ef0da5cb0b76" width="15%" />
 </p>
 
-# 知乎历史记录
+# 知乎历史记录 - 全局面板
+
+> 此为原[知乎历史记录](https://github.com/maxchang3/zhihu-history/tree/legacy)的重构版本，该版本不支持本地存储，数据完全来自知乎 API。
 
 ![Greasy Fork 总下载量](https://img.shields.io/greasyfork/dt/459852?style=flat-square&color=444)
 ![GitHub Release](https://img.shields.io/github/v/release/maxchang3/zhihu-history?style=flat-square&color=444)
@@ -11,42 +13,30 @@
 [![从 Greasy Fork 安装](https://img.shields.io/badge/Greasy_Fork-7D160D)](https://greasyfork.org/scripts/459852) [![从 Github Release 安装](https://img.shields.io/badge/Github_Release-3D7D3F)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history.user.js)
 
 
-刷知乎网页版时，最痛苦的事情可能就是：当你正在看一个回答时，因为各种意外刷新了，接着，你就再也找不到它了。🤮
+> 刷知乎网页版时，最痛苦的事情可能就是：当你正在看一个回答时，因为各种意外刷新了，接着，你就再也找不到它了。🤮
+> 
+> 某一天，当我又一次深恶痛绝时，最终写下了这个脚本。后来又使用 [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey) + React 进行了重构。
 
-某一天，当我又一次深恶痛绝时，最终写下了这个脚本。
-
-最近又想起来，使用 [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey) + React 进行重构。
+现在知乎已经提供了网页版最近浏览功能，但只能在专门的页面查看，且没有搜索功能。于是我决定再次重构。
 
 ## 特点
 
-> _~~「妈妈再也不用担心我找不到回答了」~~_
+- 贴近知乎设计风格，支持深色模式<sup>*</sup>，使用知乎 API 作为数据源
+- 简单的本地搜索（使用 `Intl.Segmenter` 分词）
+- 全局快捷键打开历史记录面板，无障碍友好
+- 无需额外依赖，复用知乎的 React<sup>**</sup>
 
-- 记录在知乎上浏览过的「文章」、「回答」、「想法」等内容
-  - 同时记录部分正文与访问时间
-  - 简单搜索（使用 `Intl.Segmenter` 分词）
-  - 目前支持：首页、搜索页、话题页
-- 无需额外依赖，复用知乎页面已挂载的 `React` 和 `ReactDOM`
-- 相对完善的无障碍支持
-- *所有数据存储在本地*
+
+<sup>* 尽管如此，脚本的大小仍然不小（50KB 左右）</sup>
+
+<sup>** 这尽管知乎 PC 网页端并没有提供深色模式，但是你可以通过 `?theme=dark` 来启用它。如果你想让这个过程自动化一些，可以使用 [maxchang3/userscripts/zhihu-dark-mode](https://github.com/maxchang3/userscripts/blob/main/zhihu-dark-mode/zhihu-dark-mode.user.js)。不过由于知乎限制，自动切换时一些组件样式不会变化，必须要刷新页面才能完全切换。</sup>
 
 ## 快捷键
 
 - <kbd>H</kbd> - 打开/关闭历史记录面板
+- <kbd>/</kbd> - 在面板内打开/关闭搜索框
 
-
-## 无障碍
-
-### 目前特性
-
-> [!CAUTION]
-> 目前，无法通过知乎自带的无障碍功能方便的选中此脚本的按钮，请使用快捷键打开/关闭面板。
-
-- 记录知乎内置快捷键（<kbd>o</kbd>）打开的内容
-- 可通过键盘完全操作所有功能
-- 历史记录条目增加了为屏幕阅读器设计的 `srOnly` 元素，提供完整信息
-- 可交互元素都设置了适当的 `aria` 属性
-
-### 键盘操作提示
+## 无障碍操作
 
 - <kbd>Tab</kbd> - 在历史记录面板中切换焦点
   - <kbd>Shift</kbd> + <kbd>Tab</kbd> - 反向切换焦点
@@ -58,5 +48,4 @@
 
 ## 感谢
 
-- [知乎增强](https://greasyfork.org/scripts/419081) - 参考了部分标题样式
 - [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey) - 提供最佳开发体验
