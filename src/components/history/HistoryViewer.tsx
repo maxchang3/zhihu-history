@@ -204,7 +204,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                 )}
                 {!loading && !error && historyItems.length > 0 && (
                     <>
-                        <ul className="list-none m-0 flex flex-col p-0 sm:px-6">
+                        <ul className="m-0 flex flex-col p-0 sm:px-6">
                             {historyItems.map((item, i) => {
                                 const isMatch = !searchTerm || matchedItems.has(i)
                                 if (!isMatch) return null

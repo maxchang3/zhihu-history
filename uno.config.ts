@@ -28,6 +28,7 @@ export default defineConfig({
         'border-t-base': 'border-t border-t-solid border-gray-200 dark:border-gray-700',
         'bg-highlight': 'bg-blue-50 dark:bg-blue-900/20',
     },
+    rules: [['object-contain', { 'object-fit': 'contain' }]],
     presets: [
         presetMini({
             dark: 'media',

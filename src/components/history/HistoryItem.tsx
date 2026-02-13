@@ -165,7 +165,7 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
                         </span>
                     </a>
                     {item.data.content?.summary && (
-                        <p className="text-secondary text-sm m-0 mt-1 overflow-hidden text-ellipsis break-words line-clamp-2">
+                        <p className="text-secondary text-sm m-0 mt-1 overflow-hidden text-ellipsis break-words">
                             {highlightedContent}
                         </p>
                     )}
