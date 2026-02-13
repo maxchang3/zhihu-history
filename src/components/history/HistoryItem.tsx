@@ -124,6 +124,7 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
                 <div className="flex-1 flex flex-col min-w-0 w-full">
                     <a
                         href={item.data.action.url}
+                        title={item.data.header.title}
                         className="flex-1 text-primary decoration-none min-w-0 w-full hover:text-blue-600  focus:text-blue-600 dark:(hover:text-blue-400 focus:text-blue-400) transition"
                         ref={ref}
                         tabIndex={0}
