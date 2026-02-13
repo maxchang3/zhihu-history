@@ -3,14 +3,13 @@ import { defineConfig, presetMini, transformerDirectives, transformerVariantGrou
 export default defineConfig({
     shortcuts: {
         btn: `
-            px-2 py-1 rounded text-sm flex items-center gap-1
+            p-(x-2 y-1) rounded text-sm flex items-center gap-1
             border transition-all cursor-pointer
             text-gray-900 border-gray-300 bg-transparent
-            dark:(text-gray-100 border-gray-600)
             hover:(bg-blue-50 text-blue-500 border-blue-500)
-            dark:hover:(bg-blue-900/20 text-blue-400 border-blue-400)
             focus:(outline-none ring-2 ring-blue-500 dark:ring-blue-400)
             disabled:(cursor-not-allowed opacity-50)
+            dark:(text-gray-100 border-gray-600 hover:(bg-blue-900/20 text-blue-400 border-blue-400))
         `,
         'custom-scrollbar': `
             [&::-webkit-scrollbar]:w-2
