@@ -11,7 +11,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/maxchang3/zhihu-history?style=flat-square&color=444)
  [![安装方式](https://img.shields.io/badge/安装方式-777?style=flat-square)](https://greasyfork.org/)
 [![Greasy Fork](https://img.shields.io/badge/Greasy_Fork-7D160D?style=flat-square)](https://greasyfork.org/scripts/566203)
-[![GitHub Release](https://img.shields.io/badge/GitHub_Release-3D7D3F?style=flat-square)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history.user.js)
+[![GitHub Release](https://img.shields.io/badge/GitHub_Release-3D7D3F?style=flat-square)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history-gp.user.js)
 
 > 刷知乎网页版时，最痛苦的事情可能就是：你正在看一个回答时，因为意外刷新了，接着，你就再也找不到它了。🤮
 > 
