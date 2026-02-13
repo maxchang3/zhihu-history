@@ -106,6 +106,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
 
     return (
         <Dialog
+            id="zhrdialog"
             isOpen={isOpen}
             onClose={onClose}
             onOpen={() => {

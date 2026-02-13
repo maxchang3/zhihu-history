@@ -1,15 +1,14 @@
-import { type FC, type ReactNode, useEffect, useRef } from 'react'
+import { type FC, type HTMLAttributes, type ReactNode, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
-interface DialogProps {
+interface DialogProps extends HTMLAttributes<HTMLDialogElement> {
     isOpen: boolean
     onClose: () => void
     children: ReactNode
-    className?: string
     onOpen?: () => void
 }
 
-export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, className = '', onOpen }) => {
+export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, className = '', onOpen, ...dialogProps }) => {
     const dialogRef = useRef<HTMLDialogElement>(null)
     const wasOpenRef = useRef(false)
 
@@ -55,6 +54,7 @@ export const Dialog: FC<DialogProps> = ({ isOpen, onClose, children, className =
                 }
             }}
             className={`select-text! border-none shadow rounded-lg overflow-hidden max-w-3xl w-full sm:w-4/5 ${className}`}
+            {...dialogProps}
         >
             <div className="p-2 outline-none">{children}</div>
         </dialog>,

@@ -10,11 +10,36 @@
   border-width: 0;
 }
 
-dialog em {
+#zhrdialog em {
   font-style: normal;
   background-color: rgba(255, 230, 0, 0.4);
   border-radius: 2px;
   padding: 0 2px;
   margin: 0 -2px;
   font-weight: 500;
+}
+
+#zhrdialog,
+#zhrdialog::backdrop {
+  transition:
+    display 0.25s allow-discrete,
+    overlay 0.25s allow-discrete,
+    opacity 0.25s;
+  opacity: 0;
+}
+
+#zhrdialog[open],
+#zhrdialog[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  #zhrdialog[open],
+  #zhrdialog[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+#zhrdialog::backdrop {
+  background-color: hsla(0, 0%, 7%, 0.65);
 }
