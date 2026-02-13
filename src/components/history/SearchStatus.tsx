@@ -30,46 +30,57 @@ export const SearchStatus: FC<SearchStatusProps> = ({
     isLoadingAll,
     onLoadAll,
 }) => {
-    // 无历史记录情况
-    if (totalCount === 0) return <div className="text-center py-10 text-secondary text-sm italic">暂无最近浏览</div>
-
-    // 搜索无结果情况
-    if (matchedCount !== -1 && matchedCount === 0) {
-        return <div className="text-center py-10 text-secondary text-sm italic">没有找到匹配的历史记录</div>
+    if (totalCount === 0) {
+        return <div className="text-center py-10 text-secondary text-sm italic">暂无最近浏览</div>
     }
 
-    // 构建状态信息和按钮
-    const getStatusContent = () => {
-        let info: string
-        let hint: string = ''
+    const hasMoreRecords = loadedCount < totalCount
+    const isNoMatch = matchedCount === 0
 
-        if (matchedCount !== -1) {
-            info = `找到 ${matchedCount} 条匹配结果`
-            hint = loadedCount < totalCount ? `（仅搜索已加载的 ${loadedCount} 条）` : ''
-        } else {
-            info = `已加载 ${loadedCount} 条 / 共 ${totalCount} 条历史记录`
-        }
-
-        const hasMoreRecords = loadedCount < totalCount
-        const shouldShowLoadAllButton = hasMoreRecords && onLoadAll
-
+    if (isNoMatch) {
         return (
-            <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base">
-                {info}
-                {hint}
-                {shouldShowLoadAllButton && (
+            <div className="flex flex-col items-center py-10">
+                <div className="text-secondary text-sm italic">没有找到匹配的历史记录</div>
+                {hasMoreRecords && onLoadAll && (
                     <button
                         type="button"
-                        className="ml-2 text-secondary hover:text-primary"
+                        className="mt-2 text-primary hover:underline text-sm"
                         onClick={onLoadAll}
                         disabled={isLoadingAll}
                     >
-                        {isLoadingAll ? '加载中...' : '全部加载'}
+                        {isLoadingAll ? '正在搜索...' : `还有 ${totalCount - loadedCount} 条记录未加载，加载全部搜索`}
                     </button>
                 )}
             </div>
         )
     }
 
-    return getStatusContent()
+    let info: string
+    let hint: string = ''
+
+    if (matchedCount !== -1) {
+        info = `已匹配 ${matchedCount} 条`
+        hint = hasMoreRecords ? ` · 已加载 ${loadedCount} / ${totalCount}` : ''
+    } else {
+        info = `已加载 ${loadedCount} / ${totalCount}`
+    }
+
+    return (
+        <div className="px-4 py-2 text-sm text-secondary mt-2 rounded text-right sticky bottom-0 z-10 border-t-base bg-main">
+            <span>
+                {info}
+                {hint}
+            </span>
+            {hasMoreRecords && onLoadAll && (
+                <button
+                    type="button"
+                    className="ml-2 text-secondary hover:text-primary font-medium"
+                    onClick={onLoadAll}
+                    disabled={isLoadingAll}
+                >
+                    {isLoadingAll ? '加载中...' : '加载全部'}
+                </button>
+            )}
+        </div>
+    )
 }
