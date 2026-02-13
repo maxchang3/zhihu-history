@@ -1,5 +1,5 @@
 import { Fragment, forwardRef, useMemo } from 'react'
-import type { SearchResult } from '@/services/search'
+import { buildHighlightSegments, type SearchResult } from '@/services/search'
 import type { HistoryItemType } from '@/types'
 
 interface HistoryItemProps {
@@ -21,64 +21,10 @@ const formatTime = (date: Date): string => {
     return date.toLocaleDateString('zh-CN')
 }
 
-type TextPart = {
-    text: string
-    highlight: boolean
-}
-
-/**
- * 将文本按照搜索结果中的匹配位置分割，并高亮匹配的部分
- */
-const highlightTextWithPositions = (
-    text: string,
-    fieldPositions: Array<{ start: number; end: number; term: string }> | undefined
-): string | React.ReactNode[] => {
-    // 无匹配位置时直接返回原文本
-    if (!fieldPositions || fieldPositions.length === 0) return text
-
-    // 优化：首先标记需要高亮的字符位置
-    const highlightMarkers = new Array(text.length).fill(false)
-
-    // 标记所有匹配位置
-    for (const { start, end } of fieldPositions) {
-        const endIndex = Math.min(end, text.length)
-        for (let i = start; i < endIndex; i++) {
-            highlightMarkers[i] = true
-        }
-    }
-
-    // 合并连续的相同类型片段
-    const segments: TextPart[] = []
-    let currentSegment: TextPart | null = null
-
-    // 构建文本片段
-    for (let i = 0; i < text.length; i++) {
-        const shouldHighlight = highlightMarkers[i]
-
-        // 需要创建新片段的情况：1) 首个字符 2) 高亮状态切换
-        if (!currentSegment || currentSegment.highlight !== shouldHighlight) {
-            // 保存前一个片段
-            if (currentSegment) segments.push(currentSegment)
-
-            // 创建新片段
-            currentSegment = {
-                text: text[i],
-                highlight: shouldHighlight,
-            }
-            continue
-        }
-        // 继续当前片段
-        currentSegment.text += text[i]
-    }
-
-    // 添加最后一个片段
-    if (currentSegment) segments.push(currentSegment)
-
-    // 渲染各个片段
-    return segments.map((segment, index) =>
+const renderSegments = (segments: Array<{ text: string; highlight: boolean }>) =>
+    segments.map((segment, index) =>
         segment.highlight ? <em key={index}>{segment.text}</em> : <Fragment key={index}>{segment.text}</Fragment>
     )
-}
 
 export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
     ({ item, searchResult, isSelected = false, onToggleSelect }, ref) => {
@@ -98,15 +44,16 @@ export const HistoryItem = forwardRef<HTMLAnchorElement, HistoryItemProps>(
         }
 
         // 高亮处理标题文本
-        const highlightedTitle = useMemo(
-            () => highlightTextWithPositions(item.data.header.title, searchResult?.matches?.title),
-            [item.data.header.title, searchResult]
-        )
+        const highlightedTitle = useMemo(() => {
+            const segments = buildHighlightSegments(item.data.header.title, searchResult?.matches?.title)
+            return renderSegments(segments)
+        }, [item.data.header.title, searchResult])
 
         // 高亮处理内容文本（如果存在）
         const highlightedContent = useMemo(() => {
             if (!item.data.content?.summary) return null
-            return highlightTextWithPositions(item.data.content.summary, searchResult?.matches?.content)
+            const segments = buildHighlightSegments(item.data.content.summary, searchResult?.matches?.content)
+            return renderSegments(segments)
         }, [item.data.content?.summary, searchResult])
 
         // 获取赞同和评论信息

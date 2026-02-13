@@ -1,5 +1,13 @@
 import type { HistoryItemType } from '@/types'
 
+// 过滤掉语气词、停留词、标点符号、空白、单字
+// biome-ignore format: keep clean
+const ignoreWords = new Set([
+    '的','了','是','在','和','有','就','不','也','这', '那','吗','吧','啊','哦','啦','呀',
+    '！','？','，','。','、','；','：','“','”','‘','’','《','》','[',']','{','}','.',
+    '(',')','【','】','——','—','…','·'
+])
+
 /**
  * 使用 Intl.Segmenter 或空格分割进行分词
  */
@@ -11,16 +19,25 @@ const createSegmenter = () => {
             const trimmedText = text.trim()
             if (!trimmedText) return []
 
-            // 过滤掉语气词、停留词、标点符号、空白、单字
-            // biome-ignore format: keep clean
-            const ignoreWords = new Set([
-                '的','了','是','在','和','有','就','不','也','这', '那','吗','吧','啊','哦','啦','呀',
-                '！','？','，','。','、','；','：','“','”','‘','’','《','》','[',']','{','}','.', 
-                '(',')','【','】','——','—','…','·'
-            ])
-            const segments = Array.from(segmenterInstance.segment(trimmedText))
-                .map((item) => item.segment.trim())
-                .filter((word) => word && !ignoreWords.has(word))
+            const tokens = trimmedText
+                .split(/\s+/)
+                .map((token) => token.trim())
+                .filter(Boolean)
+            const segments: string[] = []
+
+            for (const token of tokens) {
+                if (token.length === 1) {
+                    segments.push(token)
+                    continue
+                }
+
+                const tokenSegments = Array.from(segmenterInstance.segment(token))
+                    .map((item) => item.segment.trim())
+                    .filter((word) => word && !ignoreWords.has(word))
+                    .filter((word) => word.length > 1)
+
+                segments.push(token, ...tokenSegments)
+            }
 
             // 确保原始查询词也包含在内
             const uniqueTerms = new Set([...segments, trimmedText])
@@ -48,7 +65,7 @@ const segmenter = createSegmenter()
 
 /**
  * 判断某一项是否匹配搜索关键词
- * 匹配规则：标题、内容或作者名中包含关键词
+ * 匹配规则：标题、内容中包含关键词
  */
 export const isItemMatch = (item: HistoryItemType, term: string): boolean => {
     // 空搜索词总是匹配所有项
@@ -89,11 +106,20 @@ export interface SearchResult {
     matches: Record<SearchableField, MatchPosition[]> | Record<string, never>
 }
 
+export interface TextSegment {
+    text: string
+    highlight: boolean
+}
+
 /**
  * 查找字段中所有匹配位置
  */
-const findAllMatches = (text: string | undefined, searchTerm: string): MatchPosition[] => {
-    if (!text) return []
+const findAllMatches = (
+    text: string | undefined,
+    searchTerm: string,
+    lowerText: string | undefined = text?.toLowerCase()
+): MatchPosition[] => {
+    if (!text || !lowerText) return []
 
     const result: MatchPosition[] = []
     const termLower = searchTerm.toLowerCase()
@@ -102,7 +128,7 @@ const findAllMatches = (text: string | undefined, searchTerm: string): MatchPosi
 
     // 查找所有匹配位置
     // biome-ignore lint/suspicious/noAssignInExpressions: keep it clean
-    while ((matchIndex = text.toLowerCase().indexOf(termLower, startIndex)) !== -1) {
+    while ((matchIndex = lowerText.indexOf(termLower, startIndex)) !== -1) {
         result.push({
             start: matchIndex,
             end: matchIndex + searchTerm.length,
@@ -112,6 +138,61 @@ const findAllMatches = (text: string | undefined, searchTerm: string): MatchPosi
     }
 
     return result
+}
+
+const mergeMatchRanges = (ranges: MatchPosition[], textLength: number): Array<{ start: number; end: number }> => {
+    if (ranges.length === 0) return []
+
+    const sorted = ranges
+        .map((range) => ({
+            start: Math.max(0, Math.min(range.start, textLength)),
+            end: Math.max(0, Math.min(range.end, textLength)),
+        }))
+        .filter((range) => range.end > range.start)
+        .sort((a, b) => a.start - b.start)
+
+    if (sorted.length === 0) return []
+
+    const merged: Array<{ start: number; end: number }> = [sorted[0]]
+    for (let i = 1; i < sorted.length; i++) {
+        const last = merged[merged.length - 1]
+        const current = sorted[i]
+        if (current.start <= last.end) {
+            last.end = Math.max(last.end, current.end)
+            continue
+        }
+        merged.push(current)
+    }
+
+    return merged
+}
+
+export const buildHighlightSegments = (text: string, fieldPositions: MatchPosition[] | undefined): TextSegment[] => {
+    if (!fieldPositions || fieldPositions.length === 0) {
+        return [{ text, highlight: false }]
+    }
+
+    const ranges = mergeMatchRanges(fieldPositions, text.length)
+    if (ranges.length === 0) {
+        return [{ text, highlight: false }]
+    }
+
+    const segments: TextSegment[] = []
+    let cursor = 0
+
+    for (const range of ranges) {
+        if (cursor < range.start) {
+            segments.push({ text: text.slice(cursor, range.start), highlight: false })
+        }
+        segments.push({ text: text.slice(range.start, range.end), highlight: true })
+        cursor = range.end
+    }
+
+    if (cursor < text.length) {
+        segments.push({ text: text.slice(cursor), highlight: false })
+    }
+
+    return segments
 }
 
 /**
@@ -133,10 +214,19 @@ export const searchItem = (items: HistoryItemType[], term: string): Map<number, 
             matches: {},
         }
 
+        const title = item.data.header.title
+        const summary = item.data.content?.summary
+        const lowerTitle = title.toLowerCase()
+        const lowerSummary = summary?.toLowerCase()
+        const fields: SearchableField[] = ['title']
+        if (summary) fields.push('content')
+
         // 遍历所有搜索词
         for (const searchTerm of searchTerms) {
+            const lowerTerm = searchTerm.toLowerCase()
+
             // 跳过不匹配的项
-            if (!isItemMatch(item, searchTerm)) continue
+            if (!lowerTitle.includes(lowerTerm) && !lowerSummary?.includes(lowerTerm)) continue
 
             // 记录匹配的搜索词
             if (!itemResult.terms.includes(searchTerm)) {
@@ -146,18 +236,10 @@ export const searchItem = (items: HistoryItemType[], term: string): Map<number, 
             hasMatches = true
 
             // 处理各字段的匹配
-            const fields: SearchableField[] = ['title']
-            if (item.data.content?.summary) fields.push('content')
-
             fields.forEach((field) => {
-                let text: string | undefined
-                if (field === 'content') {
-                    text = item.data.content?.summary
-                } else {
-                    text = item.data.header.title
-                }
-
-                const matches = findAllMatches(text, searchTerm)
+                const text = field === 'content' ? summary : title
+                const textLower = field === 'content' ? lowerSummary : lowerTitle
+                const matches = findAllMatches(text, searchTerm, textLower)
 
                 if (matches.length > 0) {
                     // 初始化字段的匹配数组
