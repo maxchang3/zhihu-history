@@ -13,7 +13,7 @@
 [![从 Greasy Fork 安装](https://img.shields.io/badge/Greasy_Fork-7D160D)](https://greasyfork.org/scripts/459852) [![从 Github Release 安装](https://img.shields.io/badge/Github_Release-3D7D3F)](https://github.com/maxchang3/zhihu-history/releases/latest/download/zhihu-history.user.js)
 
 
-> 刷知乎网页版时，最痛苦的事情可能就是：当你正在看一个回答时，因为各种意外刷新了，接着，你就再也找不到它了。🤮
+> 刷知乎网页版时，最痛苦的事情可能就是：你正在看一个回答时，因为意外刷新了，接着，你就再也找不到它了。🤮
 > 
 > 某一天，当我又一次深恶痛绝时，最终写下了这个脚本。后来又使用 [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey) + React 进行了重构。
 
