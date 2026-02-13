@@ -1,5 +1,12 @@
-import type { ChangeEvent, ForwardRefRenderFunction } from 'react'
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
+import {
+    type ChangeEvent,
+    type ForwardRefRenderFunction,
+    forwardRef,
+    useCallback,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+} from 'react'
 
 export interface SearchBoxHandle {
     focus: () => void

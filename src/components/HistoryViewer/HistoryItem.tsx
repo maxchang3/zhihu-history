@@ -1,5 +1,5 @@
 import { Fragment, forwardRef, useMemo } from 'react'
-import type { SearchResult } from '@/features/search'
+import type { SearchResult } from '@/services/search'
 import type { HistoryItemType } from '@/types'
 
 interface HistoryItemProps {

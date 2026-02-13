@@ -1,5 +1,5 @@
 import type { DeleteHistoryRequest, HistoryItemType, HistoryStatsResponse, ReadHistoryResponse } from '@/types'
-import { Result } from '@/utils/result'
+import { Result } from '@/utils'
 
 // API 基础配置
 const API_BASE = 'https://www.zhihu.com/api/v4'

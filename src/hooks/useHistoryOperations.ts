@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
-import { batchDeleteHistory, clearHistory } from '@/features/api'
+import { batchDeleteHistory, clearHistory } from '@/services/api'
 import type { HistoryItemType } from '@/types'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils'
 
 export const useHistoryOperations = () => {
     const [isClearing, setIsClearing] = useState(false)

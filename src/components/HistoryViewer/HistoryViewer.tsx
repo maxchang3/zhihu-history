@@ -1,14 +1,14 @@
 import { type FC, useCallback, useEffect, useRef, useState } from 'react'
-import { Dialog, SearchIcon } from '@/components/common'
-import { useHistoryData } from '@/hooks/useHistoryData'
-import { useHistoryKeyHandlers } from '@/hooks/useHistoryKeyHandlers'
-import { useHistoryOperations } from '@/hooks/useHistoryOperations'
-import { useHistorySearch } from '@/hooks/useHistorySearch'
-import { useHistorySelection } from '@/hooks/useHistorySelection'
-import { useHistoryStats } from '@/hooks/useHistoryStats'
-import { HistoryItem } from './HistoryItem'
-import { SearchBox, type SearchBoxHandle } from './SearchBox'
-import { SearchStatus } from './SearchStatus'
+import { Dialog, SearchIcon } from '@/components/ui'
+import {
+    useHistoryData,
+    useHistoryKeyHandlers,
+    useHistoryOperations,
+    useHistorySearch,
+    useHistorySelection,
+    useHistoryStats,
+} from '@/hooks'
+import { HistoryItem, SearchBox, type SearchBoxHandle, SearchStatus } from '.'
 
 interface HistoryViewerProps {
     isOpen: boolean

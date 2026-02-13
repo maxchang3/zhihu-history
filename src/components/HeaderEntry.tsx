@@ -1,6 +1,6 @@
 import { type FC, useEffect, useState } from 'react'
-import { ClockIcon } from '@/components/common'
-import { HistoryViewer } from '@/components/history'
+import { HistoryViewer } from '@/components/HistoryViewer'
+import { ClockIcon } from '@/components/ui'
 
 export const HeaderEntry: FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false)

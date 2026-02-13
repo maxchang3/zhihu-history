@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { searchItem } from '@/features/search'
 import useDebouncedState from '@/hooks/useDebouncedState'
+import { searchItem } from '@/services/search'
 import type { HistoryItemType } from '@/types'
 
 export const useHistorySearch = (historyItems: HistoryItemType[]) => {

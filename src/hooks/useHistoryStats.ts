@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
-import { getHistoryStats } from '@/features/api'
-import { logger } from '@/utils/logger'
+import { getHistoryStats } from '@/services/api'
+import { logger } from '@/utils'
 
 export const useHistoryStats = () => {
     const [stats, setStats] = useState({ count: 0 })

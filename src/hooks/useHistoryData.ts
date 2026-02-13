@@ -1,8 +1,12 @@
 import { useCallback, useState } from 'react'
-import { HISTORY_LOAD_LIMIT } from '@/constants'
-import { fetchHistory } from '@/features/api'
+import { fetchHistory } from '@/services/api'
 import type { HistoryItemType } from '@/types'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils'
+
+/**
+ * 每次加载的历史记录数量（API 实际最多返回 100 条）
+ */
+export const HISTORY_LOAD_LIMIT = 100
 
 export const useHistoryData = () => {
     const [historyItems, setHistoryItems] = useState<HistoryItemType[]>([])

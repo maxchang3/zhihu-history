@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom'
 import App from '@/App'
-import { logger } from '@/utils/logger'
+import { logger } from '@/utils'
 import { GM_info } from '$'
 
 console.log(
