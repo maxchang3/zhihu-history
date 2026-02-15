@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             // https://unocss.dev/integrations/vite#react
-            react(),
+            react({
+                jsxRuntime: 'classic',
+            }),
             unocss(),
             monkey({
                 entry: 'src/main.tsx',
