@@ -2,7 +2,7 @@
 
 ## 2.0.2
 ### Features
-- 使用 Classic React Runtime 减少包体积
+- 使用 Classic JSX Runtime 减少包体积
 
 ### Refactors
 - 移除 vite-env.d.ts 中未使用的类型导入和声明
