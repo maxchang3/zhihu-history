@@ -41,7 +41,7 @@ export const SearchStatus: FC<SearchStatusProps> = ({
     let centerMessage: string | null = null
 
     if (isNoMatch) {
-        centerMessage = '没有找到匹配的历史记录'
+        centerMessage = '未找到匹配条目'
         if (hasMoreRecords) {
             centerMessage += '（未加载全部）'
         }

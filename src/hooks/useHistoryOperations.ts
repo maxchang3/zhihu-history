@@ -21,7 +21,7 @@ export const useHistoryOperations = () => {
                 logger.error(result.unwrapErr())
             }
         } catch (err) {
-            logger.error('清空历史记录失败:', err)
+            logger.error('清空最近浏览失败:', err)
         } finally {
             setIsClearing(false)
         }
@@ -37,7 +37,7 @@ export const useHistoryOperations = () => {
                 return
             }
 
-            if (!window.confirm(`确定要删除选中的 ${selectedItems.size} 条历史记录吗？此操作不可恢复。`)) {
+            if (!window.confirm(`确定要删除选中的 ${selectedItems.size} 条吗？此操作不可恢复。`)) {
                 return
             }
 

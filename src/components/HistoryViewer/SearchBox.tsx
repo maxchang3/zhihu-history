@@ -21,7 +21,7 @@ interface SearchBoxProps {
 }
 
 const SearchBoxImpl: ForwardRefRenderFunction<SearchBoxHandle, SearchBoxProps> = (
-    { searchTerm, onSearchChange, placeholder = '搜索历史记录', isVisible = false },
+    { searchTerm, onSearchChange, placeholder = '搜索最近浏览', isVisible = false },
     ref
 ) => {
     const inputRef = useRef<HTMLInputElement>(null)

@@ -5,7 +5,7 @@ import { Result } from '@/utils'
 const API_BASE = 'https://www.zhihu.com/api/v4'
 
 /**
- * 批量删除历史记录
+ * 批量删除
  */
 export const batchDeleteHistory = async (requestData: DeleteHistoryRequest): Promise<Result<null, string>> => {
     const result = await Result.tryAsync(async () => {
@@ -64,11 +64,11 @@ export const fetchHistory = async (
             is_end: paging.is_end,
         }
     })
-    return result.mapErr((error) => `获取历史记录失败：${error}`)
+    return result.mapErr((error) => `获取最近浏览失败：${error}`)
 }
 
 /**
- * 清空所有历史记录
+ * 清空所有
  */
 export const clearHistory = async (): Promise<Result<null, string>> => {
     return batchDeleteHistory({
@@ -78,7 +78,7 @@ export const clearHistory = async (): Promise<Result<null, string>> => {
 }
 
 /**
- * 获取历史记录统计信息
+ * 获取统计信息
  */
 export const getHistoryStats = async (): Promise<Result<HistoryStatsResponse, string>> => {
     const result = await Result.tryAsync(async () => {

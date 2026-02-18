@@ -4,7 +4,7 @@ import { logger } from '@/utils'
 import { GM_info } from '$'
 
 console.log(
-    '%c知乎历史记录',
+    '%c知乎历史记录 - 全局面板',
     'color:#1772F6; font-weight:bold; font-size:3em; padding:5px; text-shadow:1px 1px 3px rgba(0,0,0,0.7)'
 )
 

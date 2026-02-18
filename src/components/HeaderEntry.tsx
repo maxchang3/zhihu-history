@@ -30,7 +30,7 @@ export const HeaderEntry: FC = () => {
             <button
                 className="css-16zsfw9 css-1osshgk"
                 onClick={() => setIsDialogOpen(true)}
-                aria-label="历史记录"
+                aria-label="最近浏览"
                 id="history-button"
                 aria-haspopup="true"
                 aria-expanded={isDialogOpen}

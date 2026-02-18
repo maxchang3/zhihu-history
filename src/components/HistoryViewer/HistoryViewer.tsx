@@ -127,17 +127,17 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                     isVisible={isSearchVisible}
                 />
                 {/* 顶部操作栏 */}
-                <div className="flex gap-1 items-center mt-1" role="toolbar" aria-label="历史记录操作">
+                <div className="flex gap-1 items-center mt-1" role="toolbar" aria-label="最近浏览操作">
                     {!isBatchMode ? (
                         <>
                             <button
                                 type="button"
                                 className="btn"
                                 onClick={() => setIsSearchVisible(!isSearchVisible)}
-                                aria-label={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
-                                title={isSearchVisible ? '关闭搜索' : '搜索历史记录'}
+                                aria-label={isSearchVisible ? '关闭搜索' : '搜索最近浏览'}
+                                title={isSearchVisible ? '关闭搜索' : '搜索最近浏览'}
                             >
-                                <SearchIcon title={isSearchVisible ? '关闭搜索' : '搜索历史记录'} />
+                                <SearchIcon title={isSearchVisible ? '关闭搜索' : '搜索最近浏览'} />
                             </button>
                             <button
                                 type="button"
@@ -234,7 +234,7 @@ export const HistoryViewer: FC<HistoryViewerProps> = ({ isOpen, onClose }) => {
                             </button>
                         )}
                         {!hasMore && !loadingMore && !searchTerm && (
-                            <div className="text-center py-8 text-gray-(500 dark:400) text-sm">已加载全部历史记录</div>
+                            <div className="text-center py-8 text-gray-(500 dark:400) text-sm">已加载全部</div>
                         )}
                     </>
                 )}

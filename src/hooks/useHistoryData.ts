@@ -4,7 +4,7 @@ import type { HistoryItemType } from '@/types'
 import { logger } from '@/utils'
 
 /**
- * 每次加载的历史记录数量（API 实际最多返回 100 条）
+ * 每次加载的数量（API 实际最多返回 100 条）
  */
 export const HISTORY_LOAD_LIMIT = 100
 
@@ -36,7 +36,7 @@ export const useHistoryData = () => {
                 logger.error(error)
             }
         } catch (err) {
-            const errorMsg = err instanceof Error ? err.message : '加载历史记录失败'
+            const errorMsg = err instanceof Error ? err.message : '加载最近浏览失败'
             setError(errorMsg)
             logger.error(errorMsg)
         } finally {
@@ -67,7 +67,7 @@ export const useHistoryData = () => {
                 }
             }
         } catch (err) {
-            const errorMsg = err instanceof Error ? err.message : '加载所有历史记录失败'
+            const errorMsg = err instanceof Error ? err.message : '加载所有最近浏览失败'
             setError(errorMsg)
             logger.error(errorMsg)
         } finally {
