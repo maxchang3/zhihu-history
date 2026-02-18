@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.0.2
+### Features
+- 使用 Classic React Runtime 减少包体积
+
+### Refactors
+- 移除 vite-env.d.ts 中未使用的类型导入和声明
+
+## 2.0.1
+### Features
+- 添加 minify 构建支持
+
+### Performance
+- 改进搜索分词和高亮性能
+
+## 2.0.0
+### Features
+- **使用官方知乎 API 获取浏览历史**
+- 支持搜索和批量删除功能
+
+
 ## 1.2.2
 ### Features
 
